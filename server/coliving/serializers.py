@@ -3,16 +3,27 @@ from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
     RoomApplication, LivingSpaceReview, HouseRules, Task, Expense
 )
+from authentication.serializers import UserSerializer
 
 class HouseRulesSerializer(serializers.ModelSerializer):
+    # Format quiet hours as a readable string
+    quiet_hours = serializers.SerializerMethodField()
+    guests_allowed = serializers.BooleanField(source='overnight_guests_allowed')
+    additional_rules = serializers.CharField(source='custom_rules')
+
     class Meta:
         model = HouseRules
         fields = [
-            'quiet_hours_start', 'quiet_hours_end', 'overnight_guests_allowed',
-            'max_consecutive_guest_nights', 'guest_notification_required',
-            'cleaning_schedule', 'shared_chores_rotation', 'smoking_allowed',
-            'pets_allowed', 'alcohol_allowed', 'custom_rules'
+            'smoking_allowed', 'pets_allowed', 'guests_allowed', 'quiet_hours',
+            'additional_rules', 'cleaning_schedule', 'shared_chores_rotation',
+            'guest_notification_required', 'max_consecutive_guest_nights'
         ]
+
+    def get_quiet_hours(self, obj):
+        """Format quiet hours as readable string"""
+        if obj.quiet_hours_start and obj.quiet_hours_end:
+            return f"{obj.quiet_hours_start.strftime('%I:%M %p')} - {obj.quiet_hours_end.strftime('%I:%M %p')}"
+        return None
 
 class LivingSpaceImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,7 +68,7 @@ class LivingSpaceSerializer(serializers.ModelSerializer):
     rooms = RoomSerializer(many=True, read_only=True)
     house_rules = HouseRulesSerializer(read_only=True)
     members = LivingSpaceMemberSerializer(source='memberships', many=True, read_only=True)
-    created_by = serializers.StringRelatedField()
+    created_by = UserSerializer(read_only=True)
     average_rating = serializers.SerializerMethodField()
     available_rooms_count = serializers.SerializerMethodField()
 
@@ -150,8 +161,9 @@ class RoomApplicationSerializer(serializers.ModelSerializer):
         model = RoomApplication
         fields = [
             'id', 'room', 'applicant', 'message', 'move_in_date',
-            'lease_duration_months', 'status', 'review_message',
-            'created_at', 'room_name', 'living_space_name'
+            'lease_duration_months', 'contact_email', 'contact_phone',
+            'employment_status', 'monthly_income', 'references',
+            'status', 'review_message', 'created_at', 'room_name', 'living_space_name'
         ]
         read_only_fields = ['applicant', 'status', 'review_message']
 

@@ -6,7 +6,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/lib/store'
-import { coliving } from '@/lib/api'
+import { coliving, matching } from '@/lib/api'
+
+// Component imports
+import ImageGallery from '@/components/coliving/ImageGallery'
+import SpaceDetails from '@/components/coliving/SpaceDetails'
+import HouseRules from '@/components/coliving/HouseRules'
+import HostProfile from '@/components/coliving/HostProfile'
+import RoomsSection from '@/components/coliving/RoomsSection'
+import SpaceSidebar from '@/components/coliving/SpaceSidebar'
+import BookingModal from '@/components/coliving/BookingModal'
 
 interface LivingSpace {
   id: string
@@ -72,6 +81,10 @@ export default function LivingSpaceDetailPage() {
   const [showAddRoom, setShowAddRoom] = useState(false)
   const [showImageManager, setShowImageManager] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [showBookingModal, setShowBookingModal] = useState(false)
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
+  const [showMatchRequest, setShowMatchRequest] = useState(false)
+  const [requestingMatch, setRequestingMatch] = useState(false)
 
   const [editData, setEditData] = useState<Partial<LivingSpace>>({})
   const [newRoom, setNewRoom] = useState({
@@ -236,6 +249,40 @@ export default function LivingSpaceDetailPage() {
     }
   }
 
+  const handleBookRoom = (room: Room) => {
+    setSelectedRoom(room)
+    setShowBookingModal(true)
+  }
+
+  const handleRequestMatch = async () => {
+    if (!space?.created_by?.id) return
+
+    setRequestingMatch(true)
+    try {
+      await matching.requestMatch(space.created_by.id)
+      setShowMatchRequest(true)
+    } catch (error) {
+      console.error('Failed to request match:', error)
+      alert('Failed to send match request')
+    } finally {
+      setRequestingMatch(false)
+    }
+  }
+
+  const submitBooking = async (bookingData: any) => {
+    if (!selectedRoom) return
+
+    try {
+      await coliving.bookRoom(selectedRoom.id, bookingData)
+      alert('Booking request submitted successfully!')
+      setShowBookingModal(false)
+      fetchLivingSpace() // Refresh data
+    } catch (error) {
+      console.error('Failed to submit booking:', error)
+      alert('Failed to submit booking request')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif] flex items-center justify-center">
@@ -382,389 +429,91 @@ export default function LivingSpaceDetailPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2">
-            {/* Images Section */}
-            <Card className="mb-6 overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Space Photos</CardTitle>
-                {isOwner && (
-                  <Button
-                    onClick={() => setShowImageManager(true)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Manage Images
-                  </Button>
-                )}
-              </CardHeader>
-              <div
-                className="relative h-64 bg-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                onClick={() => openImageGallery()}
-              >
-                {space.images && space.images.length > 0 ? (
-                  <img
-                    src={space.images.find(img => img.is_primary)?.image || space.images[0]?.image}
-                    alt={space.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200"
-                    onClick={(e) => {
-                      if (isOwner) {
-                        e.stopPropagation()
-                        setShowImageManager(true)
-                      }
-                    }}
-                  >
-                    <div className="text-center text-gray-400">
-                      <svg className="mx-auto h-16 w-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p className="text-sm">No photos yet</p>
-                      {isOwner && <p className="text-xs">Click to add images</p>}
-                    </div>
-                  </div>
-                )}
+            <ImageGallery
+              images={space.images}
+              spaceName={space.name}
+              isOwner={isOwner}
+              onImageManager={() => setShowImageManager(true)}
+              onImageGallery={openImageGallery}
+            />
 
-                {space.images && space.images.length > 1 && (
-                  <div className="absolute top-3 right-3 bg-black bg-opacity-70 text-white px-2 py-1 rounded-lg text-xs">
-                    +{space.images.length - 1} more
-                  </div>
-                )}
+            <SpaceDetails
+              space={space}
+              editMode={editMode}
+              editData={editData}
+              onEditData={setEditData}
+            />
 
-                {space.images && space.images.length > 0 && (
-                  <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
-                    <div className="bg-white bg-opacity-90 text-[#484848] px-4 py-2 rounded-lg font-medium">
-                      🔍 View Gallery
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
+            <HouseRules
+              houseRules={space.house_rules}
+              isOwner={isOwner}
+            />
 
-            {/* Space Details */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Space Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {editMode ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[#484848] mb-2">Space Name</label>
-                      <Input
-                        value={editData.name || ''}
-                        onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                        className="rounded-2xl"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#484848] mb-2">Space Type</label>
-                      <select
-                        value={editData.space_type || ''}
-                        onChange={(e) => setEditData({ ...editData, space_type: e.target.value as any })}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl"
-                      >
-                        <option value="apartment">Apartment</option>
-                        <option value="house">House</option>
-                        <option value="condo">Condo</option>
-                        <option value="townhouse">Townhouse</option>
-                      </select>
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-[#484848] mb-2">Description</label>
-                      <textarea
-                        value={editData.description || ''}
-                        onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-2xl"
-                        rows={3}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#484848] mb-2">Total Rent ($)</label>
-                      <Input
-                        type="number"
-                        value={editData.total_rent || ''}
-                        onChange={(e) => setEditData({ ...editData, total_rent: parseInt(e.target.value) || 0 })}
-                        className="rounded-2xl"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#484848] mb-2">Lease Duration (months)</label>
-                      <Input
-                        type="number"
-                        value={editData.lease_duration_months || ''}
-                        onChange={(e) => setEditData({ ...editData, lease_duration_months: parseInt(e.target.value) || 12 })}
-                        className="rounded-2xl"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={editData.furnished || false}
-                            onChange={(e) => setEditData({ ...editData, furnished: e.target.checked })}
-                            className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
-                          />
-                          <label className="ml-2 text-sm text-[#484848]">Furnished</label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={editData.utilities_included || false}
-                            onChange={(e) => setEditData({ ...editData, utilities_included: e.target.checked })}
-                            className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
-                          />
-                          <label className="ml-2 text-sm text-[#484848]">Utilities Included</label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={editData.parking_available || false}
-                            onChange={(e) => setEditData({ ...editData, parking_available: e.target.checked })}
-                            className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
-                          />
-                          <label className="ml-2 text-sm text-[#484848]">Parking Available</label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={editData.is_public || false}
-                            onChange={(e) => setEditData({ ...editData, is_public: e.target.checked })}
-                            className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
-                          />
-                          <label className="ml-2 text-sm text-[#484848]">Public Listing</label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-[#484848] mb-4">{space.description}</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Bedrooms</p>
-                        <p className="font-medium">{space.total_bedrooms}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Bathrooms</p>
-                        <p className="font-medium">{space.total_bathrooms}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Type</p>
-                        <p className="font-medium capitalize">{space.space_type}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Lease Duration</p>
-                        <p className="font-medium">{space.lease_duration_months} months</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {space.furnished && (
-                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Furnished</span>
-                      )}
-                      {space.utilities_included && (
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Utils Included</span>
-                      )}
-                      {space.parking_available && (
-                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">Parking</span>
-                      )}
-                      {space.is_public && (
-                        <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">Public Listing</span>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <HostProfile
+              host={space.created_by}
+            />
 
-            {/* Rooms Section */}
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle>Rooms ({space.rooms.length})</CardTitle>
-                    <CardDescription>{space.available_rooms_count} available</CardDescription>
-                  </div>
-                  {isOwner && (
-                    <Button
-                      onClick={() => setShowAddRoom(true)}
-                      className="bg-[#ff5a5f] hover:bg-[#e54146]"
-                    >
-                      Add Room
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                {space.rooms.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">No rooms added yet</p>
-                    {isOwner && (
-                      <Button onClick={() => setShowAddRoom(true)}>
-                        Add Your First Room
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {space.rooms.map((room) => (
-                      <div key={room.id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-medium text-[#484848]">{room.name}</h4>
-                            <p className="text-sm text-gray-600 capitalize">{room.room_type.replace('_', ' ')}</p>
-                            {room.size_sqft && (
-                              <p className="text-sm text-gray-500">{room.size_sqft} sq ft</p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-[#ff5a5f]">${room.monthly_rent || 'TBD'}</p>
-                            <p className="text-sm text-gray-600">per month</p>
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                              room.is_available
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {room.is_available ? 'Available' : 'Occupied'}
-                            </span>
-                          </div>
-                        </div>
-                        {room.description && (
-                          <p className="text-sm text-gray-600 mt-2">{room.description}</p>
-                        )}
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {room.has_private_bathroom && (
-                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">Private Bath</span>
-                          )}
-                          {room.has_balcony && (
-                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">Balcony</span>
-                          )}
-                          {room.furnished && (
-                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">Furnished</span>
-                          )}
-                          {room.air_conditioning && (
-                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">AC</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <RoomsSection
+              rooms={space.rooms}
+              availableRoomsCount={space.available_rooms_count}
+              isOwner={isOwner}
+              onAddRoom={() => setShowAddRoom(true)}
+              onBookRoom={handleBookRoom}
+            />
           </div>
 
           {/* Right Sidebar */}
-          <div className="space-y-6">
-            {/* Rent Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Rent Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Space Rent:</span>
-                    <span className="font-bold text-[#ff5a5f] text-xl">${space.total_rent}</span>
-                  </div>
-                  {space.rooms.length > 0 && (
-                    <>
-                      <div className="border-t pt-3">
-                        <p className="text-sm text-gray-600 mb-2">Individual Rooms:</p>
-                        {space.rooms.filter(r => r.monthly_rent).map((room) => (
-                          <div key={room.id} className="flex justify-between text-sm">
-                            <span>{room.name}:</span>
-                            <span>${room.monthly_rent}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="border-t pt-3">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Total from Rooms:</span>
-                          <span className="font-medium">
-                            ${space.rooms.reduce((sum, room) => sum + (room.monthly_rent || 0), 0)}
-                          </span>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  <div className="text-xs text-gray-500">
-                    {space.utilities_included ? 'Utilities included' : 'Utilities separate'}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Space Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Space Statistics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Rooms:</span>
-                    <span className="font-medium">{space.rooms.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Available:</span>
-                    <span className="font-medium text-green-600">{space.available_rooms_count}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Occupied:</span>
-                    <span className="font-medium text-blue-600">{space.rooms.length - space.available_rooms_count}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Members:</span>
-                    <span className="font-medium">{space.members?.length || 0}</span>
-                  </div>
-                  {space.average_rating && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Rating:</span>
-                      <span className="font-medium">⭐ {space.average_rating.toFixed(1)}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            {isOwner && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setShowAddRoom(true)}
-                  >
-                    Add New Room
-                  </Button>
-                  <Button
-                    onClick={() => setShowImageManager(true)}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Manage Images
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                  >
-                    View Applications
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+          <div>
+            <SpaceSidebar
+              totalRent={space.total_rent}
+              rooms={space.rooms}
+              utilitiesIncluded={space.utilities_included}
+              totalRooms={space.rooms.length}
+              availableRooms={space.available_rooms_count}
+              occupiedRooms={space.rooms.length - space.available_rooms_count}
+              membersCount={space.members?.length || 0}
+              averageRating={space.average_rating}
+              isOwner={isOwner}
+              requestingMatch={requestingMatch}
+              onRequestMatch={handleRequestMatch}
+              onAddRoom={() => setShowAddRoom(true)}
+              onImageManager={() => setShowImageManager(true)}
+            />
           </div>
         </div>
       </div>
 
-      {/* Add Room Modal */}
+      {/* Booking Modal */}
+      {showBookingModal && selectedRoom && (
+        <BookingModal
+          room={selectedRoom}
+          onSubmit={submitBooking}
+          onCancel={() => setShowBookingModal(false)}
+        />
+      )}
+
+      {/* Match Request Success Modal */}
+      {showMatchRequest && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-green-500 text-2xl">✓</span>
+            </div>
+            <h2 className="text-2xl font-bold text-[#484848] mb-4">Match Request Sent!</h2>
+            <p className="text-gray-600 mb-6">
+              Your match request has been sent to the space owner. They'll be notified and can respond to your request.
+            </p>
+            <Button
+              onClick={() => setShowMatchRequest(false)}
+              className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-3 rounded-2xl"
+            >
+              Got it!
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Add Room Modal - keeping inline for now as it's complex */}
       {showAddRoom && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -930,7 +679,7 @@ export default function LivingSpaceDetailPage() {
         </div>
       )}
 
-      {/* Image Manager Modal */}
+      {/* Image Manager Modal - keeping inline for now as it's complex */}
       {showImageManager && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">

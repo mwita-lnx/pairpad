@@ -94,6 +94,11 @@ export const matching = {
   respondToMatchRequest: async (userId: string, response: 'accept' | 'decline'): Promise<any> => {
     const result = await api.post('/matching/respond/', { user_id: userId, response })
     return result.data
+  },
+
+  requestMatch: async (userId: string): Promise<any> => {
+    const response = await api.post('/matching/request/', { user_id: userId })
+    return response.data
   }
 }
 
@@ -175,6 +180,16 @@ export const coliving = {
 
   updateImage: async (imageId: string, data: any): Promise<any> => {
     const response = await api.put(`/coliving/images/${imageId}/`, data)
+    return response.data
+  },
+
+  bookRoom: async (roomId: string, bookingData: any): Promise<any> => {
+    const response = await api.post(`/coliving/rooms/${roomId}/book/`, bookingData)
+    return response.data
+  },
+
+  requestSpaceMatch: async (spaceId: string, targetUserId: string): Promise<any> => {
+    const response = await api.post(`/coliving/living-spaces/${spaceId}/request-match/`, { target_user_id: targetUserId })
     return response.data
   }
 }

@@ -375,6 +375,23 @@ class RoomApplication(models.Model):
     move_in_date = models.DateField()
     lease_duration_months = models.IntegerField(help_text="Desired lease duration in months")
 
+    # Contact information
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+
+    # Employment and financial information
+    EMPLOYMENT_STATUS_CHOICES = [
+        ('employed', 'Employed'),
+        ('self-employed', 'Self-Employed'),
+        ('student', 'Student'),
+        ('unemployed', 'Unemployed'),
+    ]
+    employment_status = models.CharField(max_length=20, choices=EMPLOYMENT_STATUS_CHOICES, blank=True)
+    monthly_income = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    # References
+    references = models.TextField(blank=True, help_text="Previous landlords, employers, or personal references")
+
     # Status and review
     status = models.CharField(max_length=20, choices=APPLICATION_STATUS, default='pending')
     reviewed_by = models.ForeignKey(

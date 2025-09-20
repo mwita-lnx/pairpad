@@ -9,6 +9,7 @@ from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
     RoomApplication, LivingSpaceReview, HouseRules, Task, Expense
 )
+from matching.models import MatchInteraction
 from .serializers import (
     LivingSpaceSerializer, LivingSpaceCreateSerializer, RoomSerializer,
     RoomCreateSerializer, RoomApplicationSerializer, LivingSpaceReviewSerializer,
@@ -87,6 +88,68 @@ class LivingSpaceViewSet(viewsets.ModelViewSet):
         serializer = RoomSerializer(available_rooms, many=True, context={'request': request})
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'])
+    def request_match(self, request, pk=None):
+        """Request a match with the host of this living space"""
+        living_space = self.get_object()
+        host = living_space.created_by
+
+        # Check if user is trying to match with themselves
+        if request.user == host:
+            return Response(
+                {'error': 'You cannot request a match with yourself'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check if user already has an interaction with this host
+        existing_interaction = MatchInteraction.objects.filter(
+            user=request.user,
+            target_user=host
+        ).first()
+
+        if existing_interaction:
+            return Response(
+                {'error': 'You have already interacted with this host'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Create match interaction
+        MatchInteraction.objects.create(
+            user=request.user,
+            target_user=host,
+            interaction_type='like'
+        )
+
+        # Check if it's mutual (host has also liked this user)
+        mutual_interaction = MatchInteraction.objects.filter(
+            user=host,
+            target_user=request.user,
+            interaction_type='like'
+        ).exists()
+
+        if mutual_interaction:
+            from matching.views import calculate_compatibility
+            from matching.models import Match
+
+            # Create match
+            compatibility = calculate_compatibility(request.user, host)
+            match, created = Match.objects.get_or_create(
+                user1=min(request.user, host, key=lambda x: x.id),
+                user2=max(request.user, host, key=lambda x: x.id),
+                defaults={
+                    'compatibility_score': compatibility,
+                    'status': 'mutual'
+                }
+            )
+
+            return Response({
+                'message': 'Match created with host!',
+                'match_id': match.id,
+                'compatibility_score': compatibility
+            })
+
+        return Response({'message': 'Match request sent to host successfully'})
+
 class RoomViewSet(viewsets.ModelViewSet):
     """ViewSet for managing rooms"""
     permission_classes = [IsAuthenticated]
@@ -137,6 +200,41 @@ class RoomViewSet(viewsets.ModelViewSet):
         serializer = RoomApplicationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             application = serializer.save(room=room)
+            return Response(RoomApplicationSerializer(application).data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def book(self, request, pk=None):
+        """Book a room - alias for apply with additional booking data"""
+        room = self.get_object()
+
+        # Check if room is available
+        if not room.is_available:
+            return Response(
+                {'error': 'This room is not available'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check if user already applied
+        existing_application = RoomApplication.objects.filter(
+            room=room,
+            applicant=request.user
+        ).first()
+
+        if existing_application:
+            return Response(
+                {'error': 'You have already applied for this room'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Create booking application with additional fields
+        booking_data = request.data.copy()
+        booking_data['applicant'] = request.user.id
+
+        serializer = RoomApplicationSerializer(data=booking_data, context={'request': request})
+        if serializer.is_valid():
+            application = serializer.save(room=room, applicant=request.user)
             return Response(RoomApplicationSerializer(application).data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
