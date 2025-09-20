@@ -10,26 +10,48 @@ import { matching } from '@/lib/api'
 import { calculateCompatibilityScore, User } from '@/lib/utils'
 
 export default function MatchesPage() {
-  const { user } = useAuthStore()
+  const { user, checkAuth } = useAuthStore()
   const { suggestedMatches, setSuggestedMatches, addMatch } = useMatchStore()
   const [isLoading, setIsLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   useEffect(() => {
-    const loadSuggestions = async () => {
+    const loadData = async () => {
       try {
-        const suggestions = await matching.getSuggestions()
-        setSuggestedMatches(suggestions)
+        // Refresh user data to ensure we have the latest personality profile
+        await checkAuth()
+      } catch (error) {
+        console.error('Failed to refresh user data:', error)
+      }
+    }
+
+    loadData()
+  }, [checkAuth])
+
+  useEffect(() => {
+    const loadSuggestions = async () => {
+      if (!user) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        if (user.personalityProfile) {
+          const suggestions = await matching.getSuggestions()
+          setSuggestedMatches(suggestions)
+        }
       } catch (error) {
         console.error('Failed to load suggestions:', error)
-        toast.error('Failed to load match suggestions')
+        if (user.personalityProfile) {
+          toast.error('Failed to load match suggestions')
+        }
       } finally {
         setIsLoading(false)
       }
     }
 
     loadSuggestions()
-  }, [setSuggestedMatches])
+  }, [user, setSuggestedMatches])
 
   const handleAcceptMatch = async (matchUser: User) => {
     setActionLoading(matchUser.id)
@@ -85,24 +107,20 @@ export default function MatchesPage() {
 
     return (
       <div className="space-y-3">
-        <h4 className="font-medium">Personality Compatibility</h4>
+        <h4 className="font-bold text-[#484848]">Personality Compatibility</h4>
         {traits.map((trait) => {
           const difference = Math.abs(trait.user - trait.match)
           const compatibility = Math.max(0, 100 - (difference * 2))
 
           return (
             <div key={trait.name} className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>{trait.name}</span>
-                <span>{Math.round(compatibility)}%</span>
+              <div className="flex justify-between text-sm font-medium">
+                <span className="text-[#484848]">{trait.name}</span>
+                <span className="text-[#ff5a5f]">{Math.round(compatibility)}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className={`h-2 rounded-full ${
-                    compatibility >= 80 ? 'bg-green-500' :
-                    compatibility >= 60 ? 'bg-yellow-500' :
-                    'bg-red-500'
-                  }`}
+                  className="h-2 rounded-full bg-[#ff5a5f]"
                   style={{ width: `${compatibility}%` }}
                 />
               </div>
@@ -135,14 +153,14 @@ export default function MatchesPage() {
 
     return (
       <div className="space-y-3">
-        <h4 className="font-medium">Lifestyle Compatibility</h4>
+        <h4 className="font-bold text-[#484848]">Lifestyle Compatibility</h4>
         {lifestyle.map((item) => {
           if (item.type === 'boolean') {
             const match = item.user === item.match
             return (
               <div key={item.name} className="flex justify-between items-center">
-                <span className="text-sm">{item.name}</span>
-                <span className={`text-sm font-medium ${match ? 'text-green-600' : 'text-red-600'}`}>
+                <span className="text-sm text-[#484848]">{item.name}</span>
+                <span className={`text-sm font-medium ${match ? 'text-green-600' : 'text-[#ff5a5f]'}`}>
                   {match ? '✓ Compatible' : '✗ Different'}
                 </span>
               </div>
@@ -153,17 +171,13 @@ export default function MatchesPage() {
 
             return (
               <div key={item.name} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span>{item.name}</span>
-                  <span>{Math.round(compatibility)}%</span>
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-[#484848]">{item.name}</span>
+                  <span className="text-[#ff5a5f]">{Math.round(compatibility)}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className={`h-2 rounded-full ${
-                      compatibility >= 80 ? 'bg-green-500' :
-                      compatibility >= 60 ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    }`}
+                    className="h-2 rounded-full bg-[#ff5a5f]"
                     style={{ width: `${compatibility}%` }}
                   />
                 </div>
@@ -177,114 +191,123 @@ export default function MatchesPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Finding your perfect matches...</p>
+      <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif]">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto"></div>
+            <p className="mt-2 text-[#484848]">Finding your perfect matches...</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Your Matches</h1>
-        <p className="text-gray-600">
-          Discover roommates who are scientifically compatible with you.
-        </p>
-      </div>
+    <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif]">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
+            Your Perfect
+            <span className="text-[#ff5a5f] block">Matches</span>
+          </h1>
+          <p className="text-xl text-[#484848] font-light">
+            Discover roommates who are scientifically compatible with you
+          </p>
+        </div>
 
-      {!user?.personalityProfile ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Complete Your Profile First</CardTitle>
-            <CardDescription>
-              Take our personality assessment to get personalized matches
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/personality/assessment">
-              <Button>Take Assessment</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      ) : suggestedMatches.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>No Matches Yet</CardTitle>
-            <CardDescription>
-              We're working on finding compatible roommates for you. Check back soon!
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : (
-        <div className="grid gap-6">
-          {suggestedMatches.map((matchUser) => {
-            const compatibilityScore = calculateCompatibilityScore(
-              user.personalityProfile!,
-              matchUser.personalityProfile!
-            )
+        {!user?.personalityProfile ? (
+          <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-[#484848] mb-4">
+                Complete Your Profile First
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Take our personality assessment to get personalized matches
+              </p>
+              <Link href="/dashboard/personality/assessment">
+                <button className="bg-[#ff5a5f] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:bg-[#e54146] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
+                  Take Assessment
+                </button>
+              </Link>
+            </div>
+          </div>
+        ) : suggestedMatches.length === 0 ? (
+          <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-[#484848] mb-4">
+                No Matches Yet
+              </h3>
+              <p className="text-gray-600">
+                We're working on finding compatible roommates for you. Check back soon!
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {suggestedMatches.map((matchUser) => {
+              const compatibilityScore = calculateCompatibilityScore(
+                user.personalityProfile!,
+                matchUser.personalityProfile!
+              )
 
-            return (
-              <Card key={matchUser.id} className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
+              return (
+                <div key={matchUser.id} className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+                  <div className="flex justify-between items-start mb-6">
                     <div>
-                      <CardTitle className="flex items-center gap-2">
+                      <h3 className="text-2xl font-bold text-[#484848] flex items-center gap-2">
                         {matchUser.username}
                         <span className="text-sm font-normal text-gray-500 capitalize">
                           • {matchUser.role}
                         </span>
-                      </CardTitle>
-                      <CardDescription>
+                      </h3>
+                      <p className="text-gray-600">
                         {matchUser.personalityProfile?.communicationStyle} communication style
-                      </CardDescription>
+                      </p>
                     </div>
                     <div className="text-right">
-                      <div className={`text-2xl font-bold ${
+                      <div className={`text-3xl font-bold ${
                         compatibilityScore >= 80 ? 'text-green-600' :
-                        compatibilityScore >= 60 ? 'text-yellow-600' :
-                        'text-red-600'
+                        compatibilityScore >= 60 ? 'text-orange-500' :
+                        'text-[#ff5a5f]'
                       }`}>
                         {compatibilityScore}%
                       </div>
                       <div className="text-sm text-gray-500">compatible</div>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-6">
+
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
                     {renderCompatibilityBreakdown(matchUser)}
                     {renderLifestyleCompatibility(matchUser)}
                   </div>
 
-                  <div className="flex gap-3 mt-6">
-                    <Button
+                  <div className="flex gap-3">
+                    <button
                       onClick={() => handleAcceptMatch(matchUser)}
                       disabled={actionLoading === matchUser.id}
-                      className="flex-1"
+                      className="flex-1 bg-[#ff5a5f] text-white py-3 rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105 disabled:opacity-50"
                     >
                       {actionLoading === matchUser.id ? 'Processing...' : '❤️ Like'}
-                    </Button>
-                    <Button
-                      variant="outline"
+                    </button>
+                    <button
                       onClick={() => handleRejectMatch(matchUser)}
                       disabled={actionLoading === matchUser.id}
-                      className="flex-1"
+                      className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-2xl font-medium hover:bg-gray-50 transition-all disabled:opacity-50"
                     >
                       👎 Pass
-                    </Button>
-                    <Link href={`/matches/${matchUser.id}`}>
-                      <Button variant="outline">View Profile</Button>
+                    </button>
+                    <Link href={`/dashboard/matches/${matchUser.id}`} className="flex-1">
+                      <button className="w-full border-2 border-[#ff5a5f] text-[#ff5a5f] py-3 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+                        View Profile
+                      </button>
                     </Link>
                   </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

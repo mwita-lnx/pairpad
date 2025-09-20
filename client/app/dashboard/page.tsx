@@ -31,182 +31,226 @@ export default function Dashboard() {
   const renderPersonalityStats = () => {
     if (!user?.personalityProfile) {
       return (
-        <Card>
-          <CardHeader>
-            <CardTitle>Complete Your Profile</CardTitle>
-            <CardDescription>
-              Take our personality assessment to get better matches
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/personality/assessment">
-              <Button>Take Assessment</Button>
+        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-[#484848] mb-4">
+              Complete Your Personality Profile
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Take our science-based assessment to discover your perfect roommate matches
+            </p>
+            <Link href="/dashboard/personality/assessment">
+              <button className="bg-[#ff5a5f] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:bg-[#e54146] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
+                Take Assessment
+              </button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )
     }
 
     const { personalityProfile } = user
     const traits = [
-      { name: 'Openness', value: personalityProfile.openness, color: 'bg-purple-500' },
-      { name: 'Conscientiousness', value: personalityProfile.conscientiousness, color: 'bg-blue-500' },
-      { name: 'Extraversion', value: personalityProfile.extraversion, color: 'bg-green-500' },
-      { name: 'Agreeableness', value: personalityProfile.agreeableness, color: 'bg-yellow-500' },
-      { name: 'Neuroticism', value: personalityProfile.neuroticism, color: 'bg-red-500' },
+      { name: 'Openness', value: personalityProfile.openness },
+      { name: 'Conscientiousness', value: personalityProfile.conscientiousness },
+      { name: 'Extraversion', value: personalityProfile.extraversion },
+      { name: 'Agreeableness', value: personalityProfile.agreeableness },
+      { name: 'Neuroticism', value: personalityProfile.neuroticism },
     ]
 
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Personality Profile</CardTitle>
-          <CardDescription>Based on Big Five personality traits</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {traits.map((trait) => (
-              <div key={trait.name}>
-                <div className="flex justify-between text-sm font-medium mb-1">
-                  <span>{trait.name}</span>
-                  <span>{trait.value}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full ${trait.color}`}
-                    style={{ width: `${trait.value}%` }}
-                  />
-                </div>
+      <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-[#484848]">
+            Your Personality Profile
+          </h3>
+          <p className="text-gray-600">Based on Big Five personality science</p>
+        </div>
+        <div className="space-y-6">
+          {traits.map((trait) => (
+            <div key={trait.name}>
+              <div className="flex justify-between items-center text-sm font-medium mb-2">
+                <span className="text-[#484848]">{trait.name}</span>
+                <span className="text-[#ff5a5f] font-bold">{trait.value}%</span>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="h-3 rounded-full bg-[#ff5a5f] transition-all duration-500"
+                  style={{ width: `${trait.value}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     )
   }
 
   const renderRecentMatches = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Match Suggestions</CardTitle>
-        <CardDescription>People you might be compatible with</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="text-center py-4">Loading suggestions...</div>
-        ) : suggestedMatches.length === 0 ? (
-          <div className="text-center py-4 text-gray-500">
-            No suggestions available. Complete your personality assessment to get matches.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {suggestedMatches.slice(0, 3).map((match) => {
-              const compatibilityScore = user?.personalityProfile && match.personalityProfile
-                ? calculateCompatibilityScore(user.personalityProfile, match.personalityProfile)
-                : 0
+    <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-[#484848]">
+          Your Perfect Matches
+        </h3>
+        <p className="text-gray-600">People who vibe with your energy</p>
+      </div>
 
-              return (
-                <div key={match.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h4 className="font-medium">{match.username}</h4>
-                    <p className="text-sm text-gray-600 capitalize">{match.role}</p>
-                    <p className="text-sm text-green-600">{compatibilityScore}% compatible</p>
+      {isLoading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto mb-4"></div>
+          <p className="text-gray-500">Finding your perfect matches...</p>
+        </div>
+      ) : suggestedMatches.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-4">
+            Complete your personality assessment to discover amazing roommate matches!
+          </p>
+          <Link href="/personality/assessment">
+            <button className="bg-[#ff5a5f] text-white px-6 py-3 rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105">
+              Get Started
+            </button>
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {suggestedMatches.slice(0, 3).map((match) => {
+            const compatibilityScore = user?.personalityProfile && match.personalityProfile
+              ? calculateCompatibilityScore(user.personalityProfile, match.personalityProfile)
+              : 0
+
+            return (
+              <div key={match.id} className="bg-gray-50 p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-[#ff5a5f] rounded-full flex items-center justify-center text-white text-xl font-bold">
+                      {match.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[#484848]">{match.username}</h4>
+                      <p className="text-sm text-gray-600 capitalize">
+                        {match.role}
+                      </p>
+                      <p className="text-sm text-[#ff5a5f] font-bold">
+                        {compatibilityScore}% compatible
+                      </p>
+                    </div>
                   </div>
-                  <Link href={`/matches/${match.id}`}>
-                    <Button size="sm">View Profile</Button>
+                  <Link href={`/dashboard/matches/${match.id}`}>
+                    <button className="bg-[#ff5a5f] text-white px-6 py-2 rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105">
+                      View Profile
+                    </button>
                   </Link>
                 </div>
-              )
-            })}
-            <Link href="/matches">
-              <Button variant="outline" className="w-full">
-                View All Matches
-              </Button>
-            </Link>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              </div>
+            )
+          })}
+          <Link href="/dashboard/matches">
+            <button className="w-full border-2 border-[#ff5a5f] text-[#ff5a5f] py-3 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+              View All Matches
+            </button>
+          </Link>
+        </div>
+      )}
+    </div>
   )
 
   const renderQuickActions = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <Link href="/matches" className="block">
-          <Button variant="outline" className="w-full justify-start">
-            🎯 Find Matches
-          </Button>
+    <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-[#484848]">
+          Quick Actions
+        </h3>
+      </div>
+      <div className="space-y-3">
+        <Link href="/dashboard/matches" className="block">
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+            Find Your Perfect Match
+          </button>
         </Link>
-        <Link href="/messages" className="block">
-          <Button variant="outline" className="w-full justify-start">
-            💬 Check Messages
-          </Button>
+        <Link href="/dashboard/messages" className="block">
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+            Check Messages
+          </button>
         </Link>
-        <Link href="/coliving" className="block">
-          <Button variant="outline" className="w-full justify-start">
-            🏠 Manage Co-Living
-          </Button>
+        <Link href="/dashboard/coliving" className="block">
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+            Manage Co-Living
+          </button>
         </Link>
         <Link href="/personality/assessment" className="block">
-          <Button variant="outline" className="w-full justify-start">
-            📊 Update Profile
-          </Button>
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+            Update Profile
+          </button>
         </Link>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
+  )
+
+  const renderAccountStatus = () => (
+    <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-[#484848]">
+          Account Status
+        </h3>
+      </div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <span className="text-[#484848] font-medium">
+            Verification:
+          </span>
+          <span className={`font-bold px-3 py-1 rounded-full text-sm ${
+            user?.verificationStatus === 'verified' ? 'bg-green-100 text-green-600' :
+            user?.verificationStatus === 'pending' ? 'bg-yellow-100 text-yellow-600' :
+            'bg-red-100 text-red-600'
+          }`}>
+            {user?.verificationStatus || 'Unknown'}
+          </span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-[#484848] font-medium">
+            Profile:
+          </span>
+          <span className={`font-bold px-3 py-1 rounded-full text-sm ${
+            user?.personalityProfile ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
+          }`}>
+            {user?.personalityProfile ? 'Complete' : 'Incomplete'}
+          </span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-[#484848] font-medium">
+            Account Type:
+          </span>
+          <span className="font-bold text-[#ff5a5f] capitalize">{user?.role}</span>
+        </div>
+      </div>
+    </div>
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {user?.username}!
-        </h1>
-        <p className="text-gray-600">
-          Here&apos;s what&apos;s happening with your roommate search.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          {renderPersonalityStats()}
-          {renderRecentMatches()}
+    <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif]">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
+            Welcome back,
+            <span className="text-[#ff5a5f] block">
+              {user?.username}!
+            </span>
+          </h1>
+          <p className="text-xl text-[#484848] font-light">
+            Your perfect roommate adventure continues here
+          </p>
         </div>
 
-        <div className="space-y-8">
-          {renderQuickActions()}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {renderPersonalityStats()}
+            {renderRecentMatches()}
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span>Verification:</span>
-                  <span className={`font-medium ${
-                    user?.verificationStatus === 'verified' ? 'text-green-600' :
-                    user?.verificationStatus === 'pending' ? 'text-yellow-600' :
-                    'text-red-600'
-                  }`}>
-                    {user?.verificationStatus || 'Unknown'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Profile:</span>
-                  <span className="font-medium text-green-600">
-                    {user?.personalityProfile ? 'Complete' : 'Incomplete'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Account Type:</span>
-                  <span className="font-medium capitalize">{user?.role}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-8">
+            {renderQuickActions()}
+            {renderAccountStatus()}
+          </div>
         </div>
       </div>
     </div>

@@ -19,8 +19,11 @@ export default function DashboardLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-white flex items-center justify-center font-['DynaPuff',Helvetica,Arial,sans-serif]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto mb-4"></div>
+          <p className="text-lg text-[#484848] font-medium">Loading your perfect matches...</p>
+        </div>
       </div>
     )
   }
@@ -30,7 +33,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
       <main>{children}</main>
     </div>

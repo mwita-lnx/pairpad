@@ -2,14 +2,24 @@ from rest_framework import serializers
 from .models import PersonalityProfile, AssessmentQuestion, AssessmentResponse
 
 class PersonalityProfileSerializer(serializers.ModelSerializer):
+    lifestylePreferences = serializers.SerializerMethodField()
+    communicationStyle = serializers.CharField(source='communication_style', read_only=True)
+
     class Meta:
         model = PersonalityProfile
         fields = [
             'openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism',
-            'cleanliness_level', 'social_level', 'quiet_hours', 'pets_allowed', 'smoking_allowed',
-            'communication_style', 'completed_at', 'updated_at'
+            'lifestylePreferences', 'communicationStyle'
         ]
-        read_only_fields = ['completed_at', 'updated_at']
+
+    def get_lifestylePreferences(self, obj):
+        return {
+            'cleanliness': obj.cleanliness_level,
+            'socialLevel': obj.social_level,
+            'quietHours': obj.quiet_hours,
+            'pets': obj.pets_allowed,
+            'smoking': obj.smoking_allowed
+        }
 
 class AssessmentQuestionSerializer(serializers.ModelSerializer):
     class Meta:

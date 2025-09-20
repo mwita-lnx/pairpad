@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMessageStore, useMatchStore } from '@/lib/store'
-import { messaging } from '@/lib/api'
+import { messaging, matching } from '@/lib/api'
 import { formatDate } from '@/lib/utils'
 
 export default function ChatPage() {
@@ -14,7 +14,7 @@ export default function ChatPage() {
   const matchId = params.matchId as string
 
   const { messages, setMessages, addMessage } = useMessageStore()
-  const { matches } = useMatchStore()
+  const { matches, setMatches } = useMatchStore()
   const [newMessage, setNewMessage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
@@ -24,19 +24,26 @@ export default function ChatPage() {
   const currentMessages = messages[matchId] || []
 
   useEffect(() => {
-    const loadMessages = async () => {
+    const loadData = async () => {
       try {
+        // Load matches if not loaded
+        if (matches.length === 0) {
+          const matchesData = await matching.getMatches()
+          setMatches(matchesData)
+        }
+
+        // Load messages
         const chatMessages = await messaging.getMessages(matchId)
         setMessages(matchId, chatMessages)
       } catch (error) {
-        console.error('Failed to load messages:', error)
+        console.error('Failed to load data:', error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadMessages()
-  }, [matchId, setMessages])
+    loadData()
+  }, [matchId, setMessages, setMatches, matches.length])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -84,8 +91,8 @@ export default function ChatPage() {
     )
   }
 
-  const otherUserId = currentMatch.user1Id === '1' ? currentMatch.user2Id : currentMatch.user1Id
-  const otherUserName = otherUserId === '2' ? 'Alice' : 'Bob'
+  const otherUser = currentMatch.otherUser
+  const otherUserName = otherUser?.username || otherUser?.first_name || 'Unknown User'
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

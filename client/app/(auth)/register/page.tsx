@@ -1,67 +1,174 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/lib/store'
 import { auth } from '@/lib/api'
 import type { User } from '@/lib/utils'
 
 export default function RegisterPage() {
+  const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
+    // Basic Account Info
     email: '',
     password: '',
     confirmPassword: '',
     username: '',
-    role: 'student' as User['role']
+    role: 'student' as User['role'],
+
+    // Personal Information
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    gender: '',
+    phoneNumber: '',
+
+    // Location & Living Preferences
+    currentCity: '',
+    preferredCity: '',
+    budgetMin: '',
+    budgetMax: '',
+    moveInDate: '',
+    leaseDuration: '',
+
+    // Basic Lifestyle Preferences
+    smokingPreference: 'no_preference',
+    petsPreference: 'no_preference',
+    guestsPreference: 'occasionally',
+    cleanlinessLevel: '50',
+    socialLevel: '50',
+    quietHours: false,
+
+    // Additional Info
+    bio: '',
+    occupation: '',
+    education: '',
+    interests: '',
   })
+
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [showPassword, setShowPassword] = useState(false)
 
   const login = useAuthStore((state) => state.login)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-    // Clear error when user starts typing
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' })
+  const handleShowPassword = () => {
+    setShowPassword(!showPassword)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target
+    const checked = (e.target as HTMLInputElement).checked
+
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    })
+
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' })
     }
   }
 
-  const validateForm = () => {
+  const validateStep = (step: number) => {
     const newErrors: { [key: string]: string } = {}
 
-    if (!formData.email) newErrors.email = 'Email is required'
-    if (!formData.username) newErrors.username = 'Username is required'
-    if (!formData.password) newErrors.password = 'Password is required'
-    if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+    if (step === 1) {
+      if (!formData.email) newErrors.email = 'Email is required'
+      if (!formData.username) newErrors.username = 'Username is required'
+      if (!formData.password) newErrors.password = 'Password is required'
+      if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match'
+      }
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    if (step === 2) {
+      if (!formData.firstName) newErrors.firstName = 'First name is required'
+      if (!formData.lastName) newErrors.lastName = 'Last name is required'
+      if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required'
+      if (!formData.gender) newErrors.gender = 'Gender is required'
+    }
+
+    if (step === 3) {
+      if (!formData.currentCity) newErrors.currentCity = 'Current city is required'
+      if (!formData.preferredCity) newErrors.preferredCity = 'Preferred city is required'
+      if (!formData.budgetMin) newErrors.budgetMin = 'Minimum budget is required'
+      if (!formData.budgetMax) newErrors.budgetMax = 'Maximum budget is required'
+      if (parseInt(formData.budgetMin) >= parseInt(formData.budgetMax)) {
+        newErrors.budgetMax = 'Maximum budget must be greater than minimum'
+      }
+    }
+
+    return newErrors
+  }
+
+  const handleNext = () => {
+    const stepErrors = validateStep(currentStep)
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors)
+      return
+    }
+    setErrors({})
+    setCurrentStep(currentStep + 1)
+  }
+
+  const handlePrevious = () => {
+    setCurrentStep(currentStep - 1)
+    setErrors({})
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateForm()) return
+    const allErrors = {
+      ...validateStep(1),
+      ...validateStep(2),
+      ...validateStep(3),
+      ...validateStep(4)
+    }
+
+    if (Object.keys(allErrors).length > 0) {
+      setErrors(allErrors)
+      return
+    }
 
     setIsLoading(true)
+    setErrors({})
 
     try {
-      const { user } = await auth.register({
+      const registrationData = {
         email: formData.email,
         password: formData.password,
         username: formData.username,
-        role: formData.role
-      })
+        role: formData.role,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: formData.dateOfBirth,
+        gender: formData.gender,
+        phone_number: formData.phoneNumber,
+        current_city: formData.currentCity,
+        preferred_city: formData.preferredCity,
+        budget_min: parseInt(formData.budgetMin),
+        budget_max: parseInt(formData.budgetMax),
+        move_in_date: formData.moveInDate,
+        lease_duration: formData.leaseDuration,
+        smoking_preference: formData.smokingPreference,
+        pets_preference: formData.petsPreference,
+        guests_preference: formData.guestsPreference,
+        cleanliness_level: parseInt(formData.cleanlinessLevel),
+        social_level: parseInt(formData.socialLevel),
+        quiet_hours: formData.quietHours,
+        bio: formData.bio,
+        occupation: formData.occupation,
+        education: formData.education,
+        interests: formData.interests,
+      }
+
+      const { user } = await auth.register(registrationData)
       login(user)
       toast.success(`Welcome to PairPad, ${user.username}!`)
-      window.location.href = '/personality/assessment'
+      window.location.href = '/dashboard/personality/assessment'
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || err.response?.data?.error || 'Registration failed. Please try again.'
       setErrors({ general: errorMessage })
@@ -71,87 +178,532 @@ export default function RegisterPage() {
     }
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create your account</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Email address"
+  const renderStepIndicator = () => (
+    <div className="flex justify-center mb-8">
+      <div className="flex items-center space-x-4">
+        {[1, 2, 3, 4].map((step) => (
+          <div key={step} className="flex items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
+              step === currentStep
+                ? 'bg-[#ff5a5f] text-white'
+                : step < currentStep
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-200 text-gray-500'
+            }`}>
+              {step < currentStep ? '✓' : step}
+            </div>
+            {step < 4 && (
+              <div className={`w-12 h-1 mx-2 ${
+                step < currentStep ? 'bg-green-500' : 'bg-gray-200'
+              }`} />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  const renderStep1 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-[#484848] mb-2">Account Information</h2>
+        <p className="text-gray-600">Create your PairPad account</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            error={errors.email}
+            placeholder="Email address"
             required
-            autoComplete="email"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
           />
-          <Input
-            label="Username"
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        </div>
+
+        <div>
+          <input
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
-            error={errors.username}
+            placeholder="Username"
             required
-            autoComplete="username"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
           />
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              I am a
-            </label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            >
-              <option value="student">Student</option>
-              <option value="professional">Young Professional</option>
-            </select>
-          </div>
-          <Input
-            label="Password"
-            type="password"
+          {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
+        </div>
+      </div>
+
+      <div>
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+          className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+        >
+          <option value="student">Student</option>
+          <option value="professional">Young Professional</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="relative">
+          <input
+            type={showPassword ? 'text' : 'password'}
             name="password"
             value={formData.password}
             onChange={handleChange}
-            error={errors.password}
+            placeholder="Password"
             required
-            autoComplete="new-password"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all pr-16"
           />
-          <Input
-            label="Confirm Password"
-            type="password"
+          <button
+            type="button"
+            onClick={handleShowPassword}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#9ca299] hover:text-[#ff5a5f] transition-colors"
+          >
+            {showPassword ? '👁️' : '👁️‍🗨️'}
+          </button>
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+        </div>
+
+        <div>
+          <input
+            type={showPassword ? 'text' : 'password'}
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            error={errors.confirmPassword}
+            placeholder="Confirm Password"
             required
-            autoComplete="new-password"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
           />
-          {errors.general && (
-            <div className="text-sm text-red-600">{errors.general}</div>
-          )}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Creating account...' : 'Create account'}
-          </Button>
-        </form>
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:text-blue-500">
-              Sign in
-            </Link>
-          </p>
+          {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
+  )
+
+  const renderStep2 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-[#484848] mb-2">Personal Information</h2>
+        <p className="text-gray-600">Tell us about yourself</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            placeholder="First Name"
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+          {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+        </div>
+
+        <div>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            placeholder="Last Name"
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+          {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
+            type="date"
+            name="dateOfBirth"
+            value={formData.dateOfBirth}
+            onChange={handleChange}
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+          {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>}
+        </div>
+
+        <div>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          >
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="non_binary">Non-binary</option>
+            <option value="prefer_not_to_say">Prefer not to say</option>
+          </select>
+          {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
+        </div>
+      </div>
+
+      <div>
+        <input
+          type="tel"
+          name="phoneNumber"
+          value={formData.phoneNumber}
+          onChange={handleChange}
+          placeholder="Phone Number (optional)"
+          className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
+            type="text"
+            name="occupation"
+            value={formData.occupation}
+            onChange={handleChange}
+            placeholder="Occupation/Job Title"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+        </div>
+
+        <div>
+          <input
+            type="text"
+            name="education"
+            value={formData.education}
+            onChange={handleChange}
+            placeholder="Education Level/School"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderStep3 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-[#484848] mb-2">Location & Budget</h2>
+        <p className="text-gray-600">Where are you looking to live?</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
+            type="text"
+            name="currentCity"
+            value={formData.currentCity}
+            onChange={handleChange}
+            placeholder="Current City"
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+          {errors.currentCity && <p className="text-red-500 text-sm mt-1">{errors.currentCity}</p>}
+        </div>
+
+        <div>
+          <input
+            type="text"
+            name="preferredCity"
+            value={formData.preferredCity}
+            onChange={handleChange}
+            placeholder="Preferred City for Living"
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+          {errors.preferredCity && <p className="text-red-500 text-sm mt-1">{errors.preferredCity}</p>}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
+            type="number"
+            name="budgetMin"
+            value={formData.budgetMin}
+            onChange={handleChange}
+            placeholder="Min Budget ($/month)"
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+          {errors.budgetMin && <p className="text-red-500 text-sm mt-1">{errors.budgetMin}</p>}
+        </div>
+
+        <div>
+          <input
+            type="number"
+            name="budgetMax"
+            value={formData.budgetMax}
+            onChange={handleChange}
+            placeholder="Max Budget ($/month)"
+            required
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+          {errors.budgetMax && <p className="text-red-500 text-sm mt-1">{errors.budgetMax}</p>}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
+            type="date"
+            name="moveInDate"
+            value={formData.moveInDate}
+            onChange={handleChange}
+            placeholder="Preferred Move-in Date"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          />
+        </div>
+
+        <div>
+          <select
+            name="leaseDuration"
+            value={formData.leaseDuration}
+            onChange={handleChange}
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          >
+            <option value="">Lease Duration</option>
+            <option value="3_months">3 months</option>
+            <option value="6_months">6 months</option>
+            <option value="12_months">12 months</option>
+            <option value="18_months">18 months</option>
+            <option value="24_months">24+ months</option>
+            <option value="flexible">Flexible</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderStep4 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-[#484848] mb-2">Lifestyle Preferences</h2>
+        <p className="text-gray-600">Help us find your perfect match</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-[#484848] mb-2">Smoking Preference</label>
+          <select
+            name="smokingPreference"
+            value={formData.smokingPreference}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          >
+            <option value="no_preference">No Preference</option>
+            <option value="smoker">I smoke</option>
+            <option value="non_smoker">Non-smoker only</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[#484848] mb-2">Pets Preference</label>
+          <select
+            name="petsPreference"
+            value={formData.petsPreference}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          >
+            <option value="no_preference">No Preference</option>
+            <option value="has_pets">I have pets</option>
+            <option value="no_pets">No pets</option>
+            <option value="loves_pets">Love pets but don't have any</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#484848] mb-2">Guest Policy</label>
+        <select
+          name="guestsPreference"
+          value={formData.guestsPreference}
+          onChange={handleChange}
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+        >
+          <option value="rarely">Rarely have guests</option>
+          <option value="occasionally">Occasionally have guests</option>
+          <option value="frequently">Frequently have guests</option>
+          <option value="no_guests">No overnight guests</option>
+        </select>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-[#484848] mb-2">
+            Cleanliness Level: {formData.cleanlinessLevel}%
+          </label>
+          <input
+            type="range"
+            name="cleanlinessLevel"
+            min="0"
+            max="100"
+            value={formData.cleanlinessLevel}
+            onChange={handleChange}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Messy</span>
+            <span>Very Clean</span>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[#484848] mb-2">
+            Social Level: {formData.socialLevel}%
+          </label>
+          <input
+            type="range"
+            name="socialLevel"
+            min="0"
+            max="100"
+            value={formData.socialLevel}
+            onChange={handleChange}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Prefer Privacy</span>
+            <span>Love Socializing</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          name="quietHours"
+          checked={formData.quietHours}
+          onChange={handleChange}
+          className="mr-3 h-4 w-4 text-[#ff5a5f] focus:ring-[#ff5a5f] border-gray-300 rounded"
+        />
+        <label className="text-[#484848]">I prefer quiet hours (10 PM - 8 AM)</label>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#484848] mb-2">Interests & Hobbies</label>
+        <textarea
+          name="interests"
+          value={formData.interests}
+          onChange={handleChange}
+          placeholder="Tell us about your interests, hobbies, and what you like to do in your free time..."
+          rows={3}
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-[#484848] mb-2">About Me</label>
+        <textarea
+          name="bio"
+          value={formData.bio}
+          onChange={handleChange}
+          placeholder="Tell potential roommates about yourself, your lifestyle, and what you're looking for in a living situation..."
+          rows={4}
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+        />
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif]">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <Link href="/" className="text-[#ff5a5f] text-2xl font-bold">
+              PairPad
+            </Link>
+            <div className="flex gap-4">
+              <Link href="/login">
+                <button className="text-[#484848] font-medium hover:text-[#ff5a5f] transition-colors">
+                  Sign In
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="min-h-[80vh]">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
+              Join the
+              <span className="text-[#ff5a5f] block">PairPad community</span>
+            </h1>
+            <p className="text-xl text-[#484848] font-light">
+              Create your detailed profile to find your perfect roommate match
+            </p>
+          </div>
+
+          {/* Step Indicator */}
+          {renderStepIndicator()}
+
+          {/* Form */}
+          <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+            <form onSubmit={handleSubmit}>
+              {currentStep === 1 && renderStep1()}
+              {currentStep === 2 && renderStep2()}
+              {currentStep === 3 && renderStep3()}
+              {currentStep === 4 && renderStep4()}
+
+              {errors.general && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-6">
+                  <p className="text-red-600 text-sm text-center">{errors.general}</p>
+                </div>
+              )}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between mt-8">
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  disabled={currentStep === 1}
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-2xl font-medium hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                {currentStep < 4 ? (
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="px-8 py-3 bg-[#ff5a5f] text-white rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105"
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-[#ff5a5f] text-white rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
+                  </button>
+                )}
+              </div>
+            </form>
+
+            <div className="text-center mt-6">
+              <Link href="/login" className="text-[#9ca299] hover:text-[#ff5a5f] transition-colors">
+                Already have an account? <span className="font-medium">Sign in</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

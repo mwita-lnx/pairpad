@@ -56,6 +56,39 @@ export interface User {
   verificationStatus: 'pending' | 'verified' | 'rejected'
   createdAt: string
   updatedAt: string
+
+  // Personal Information
+  first_name?: string
+  last_name?: string
+  fullName?: string
+  date_of_birth?: string
+  age?: number
+  gender?: 'male' | 'female' | 'non_binary' | 'prefer_not_to_say'
+  phone_number?: string
+
+  // Professional Information
+  occupation?: string
+  education?: string
+
+  // Location & Housing Preferences
+  current_city?: string
+  preferred_city?: string
+  budget_min?: number
+  budget_max?: number
+  move_in_date?: string
+  lease_duration?: '3_months' | '6_months' | '12_months' | '18_months' | '24_months' | 'flexible'
+
+  // Lifestyle Preferences
+  smoking_preference?: 'no_preference' | 'smoker' | 'non_smoker'
+  pets_preference?: 'no_preference' | 'has_pets' | 'no_pets' | 'loves_pets'
+  guests_preference?: 'rarely' | 'occasionally' | 'frequently' | 'no_guests'
+  cleanliness_level?: number
+  social_level?: number
+  quiet_hours?: boolean
+
+  // Profile Information
+  bio?: string
+  interests?: string
 }
 
 export interface Match {

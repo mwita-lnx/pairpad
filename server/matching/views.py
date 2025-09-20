@@ -105,6 +105,129 @@ def reject_match(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def get_user_matches(request):
+    """Get all matches for the current user"""
+    user = request.user
+    matches = Match.objects.filter(
+        Q(user1=user) | Q(user2=user),
+        status='mutual'
+    ).order_by('-created_at')
+
+    match_data = []
+    for match in matches:
+        other_user = match.user2 if match.user1 == user else match.user1
+        other_user_data = UserSerializer(other_user).data
+
+        match_data.append({
+            'id': str(match.id),
+            'user1Id': str(match.user1.id),
+            'user2Id': str(match.user2.id),
+            'compatibilityScore': match.compatibility_score,
+            'status': match.status,
+            'createdAt': match.created_at.isoformat(),
+            'otherUser': other_user_data
+        })
+
+    return Response(match_data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_match_requests(request):
+    """Get incoming match requests (people who liked you but you haven't responded to)"""
+    user = request.user
+
+    # Find users who have liked the current user but current user hasn't responded
+    incoming_likes = MatchInteraction.objects.filter(
+        target_user=user,
+        interaction_type='like'
+    )
+
+    # Filter out users that current user has already responded to
+    responded_users = MatchInteraction.objects.filter(
+        user=user
+    ).values_list('target_user_id', flat=True)
+
+    pending_requests = incoming_likes.exclude(
+        user_id__in=responded_users
+    )
+
+    request_data = []
+    for interaction in pending_requests:
+        requesting_user = interaction.user
+        compatibility = calculate_compatibility(user, requesting_user)
+        user_data = UserSerializer(requesting_user).data
+
+        request_data.append({
+            'id': str(interaction.id),
+            'requestingUser': user_data,
+            'compatibilityScore': compatibility,
+            'createdAt': interaction.created_at.isoformat(),
+        })
+
+    return Response(request_data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def respond_to_match_request(request):
+    """Accept or decline a match request"""
+    requester_user_id = request.data.get('user_id')
+    response_type = request.data.get('response')  # 'accept' or 'decline'
+
+    if response_type not in ['accept', 'decline']:
+        return Response({'error': 'Invalid response type'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        requester_user = User.objects.get(id=requester_user_id)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Check if the requester actually liked this user
+    incoming_like = MatchInteraction.objects.filter(
+        user=requester_user,
+        target_user=request.user,
+        interaction_type='like'
+    ).first()
+
+    if not incoming_like:
+        return Response({'error': 'No match request found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if response_type == 'accept':
+        # Create interaction for accepting
+        interaction, created = MatchInteraction.objects.get_or_create(
+            user=request.user,
+            target_user=requester_user,
+            defaults={'interaction_type': 'like'}
+        )
+
+        # Create match since both users liked each other
+        compatibility = calculate_compatibility(request.user, requester_user)
+        match, created = Match.objects.get_or_create(
+            user1=min(request.user, requester_user, key=lambda x: x.id),
+            user2=max(request.user, requester_user, key=lambda x: x.id),
+            defaults={
+                'compatibility_score': compatibility,
+                'status': 'mutual'
+            }
+        )
+
+        return Response({
+            'message': 'Match request accepted!',
+            'match_id': match.id,
+            'compatibility_score': compatibility
+        })
+
+    else:  # decline
+        # Create interaction for declining
+        MatchInteraction.objects.get_or_create(
+            user=request.user,
+            target_user=requester_user,
+            defaults={'interaction_type': 'pass'}
+        )
+
+        return Response({'message': 'Match request declined'})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_compatibility(request, user_id):
     """Get compatibility score with specific user"""
     try:
