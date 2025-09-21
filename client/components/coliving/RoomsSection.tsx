@@ -2,6 +2,17 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Ruler,
+  CreditCard,
+  Calendar,
+  Heart,
+  Bath,
+  TreePine,
+  Shirt,
+  Bed,
+  Snowflake
+} from 'lucide-react'
 
 interface Room {
   id: string
@@ -18,8 +29,8 @@ interface Room {
   monthly_rent: number | null
   security_deposit: number | null
   available_from: string | null
-  current_occupant: any
-  images: any[]
+  current_occupant: unknown
+  images: unknown[]
   compatibility_score: number | null
 }
 
@@ -76,16 +87,28 @@ export default function RoomsSection({
                     <p className="text-sm text-gray-700 capitalize font-medium">{room.room_type.replace('_', ' ')}</p>
                     <div className="mt-2 space-y-1">
                       {room.size_sqft && (
-                        <p className="text-sm text-gray-700">📏 {room.size_sqft} sq ft</p>
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Ruler className="h-4 w-4" />
+                          <span>{room.size_sqft} sq ft</span>
+                        </div>
                       )}
                       {room.security_deposit && (
-                        <p className="text-sm text-gray-700">💳 Security Deposit: ${room.security_deposit}</p>
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <CreditCard className="h-4 w-4" />
+                          <span>Security Deposit: ${room.security_deposit}</span>
+                        </div>
                       )}
                       {room.available_from && (
-                        <p className="text-sm text-gray-700">📅 Available from: {new Date(room.available_from).toLocaleDateString()}</p>
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Calendar className="h-4 w-4" />
+                          <span>Available from: {new Date(room.available_from).toLocaleDateString()}</span>
+                        </div>
                       )}
                       {room.compatibility_score !== null && (
-                        <p className="text-sm text-purple-600 font-medium">💕 Compatibility: {room.compatibility_score}%</p>
+                        <div className="flex items-center gap-2 text-sm text-purple-600 font-medium">
+                          <Heart className="h-4 w-4" />
+                          <span>Compatibility: {room.compatibility_score}%</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -117,19 +140,34 @@ export default function RoomsSection({
                 )}
                 <div className="flex flex-wrap gap-2 mt-3">
                   {room.has_private_bathroom && (
-                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">🚿 Private Bath</span>
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <Bath className="h-3 w-3" />
+                      Private Bath
+                    </span>
                   )}
                   {room.has_balcony && (
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">🌿 Balcony</span>
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <TreePine className="h-3 w-3" />
+                      Balcony
+                    </span>
                   )}
                   {room.has_closet && (
-                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">👕 Closet</span>
+                    <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <Shirt className="h-3 w-3" />
+                      Closet
+                    </span>
                   )}
                   {room.furnished && (
-                    <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-medium">🛏️ Furnished</span>
+                    <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <Bed className="h-3 w-3" />
+                      Furnished
+                    </span>
                   )}
                   {room.air_conditioning && (
-                    <span className="bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full text-xs font-medium">❄️ AC</span>
+                    <span className="bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <Snowflake className="h-3 w-3" />
+                      AC
+                    </span>
                   )}
                 </div>
               </div>

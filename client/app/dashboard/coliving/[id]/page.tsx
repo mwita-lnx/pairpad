@@ -449,10 +449,6 @@ export default function LivingSpaceDetailPage() {
               isOwner={isOwner}
             />
 
-            <HostProfile
-              host={space.created_by}
-            />
-
             <RoomsSection
               rooms={space.rooms}
               availableRoomsCount={space.available_rooms_count}
@@ -478,6 +474,10 @@ export default function LivingSpaceDetailPage() {
               onRequestMatch={handleRequestMatch}
               onAddRoom={() => setShowAddRoom(true)}
               onImageManager={() => setShowImageManager(true)}
+            />
+
+            <HostProfile
+              host={space.created_by}
             />
           </div>
         </div>

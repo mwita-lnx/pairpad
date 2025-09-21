@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -59,7 +58,7 @@ export default function SpaceDetails({
               <label className="block text-sm font-medium text-[#484848] mb-2">Space Type</label>
               <select
                 value={editData.space_type || ''}
-                onChange={(e) => onEditData({ ...editData, space_type: e.target.value as any })}
+                onChange={(e) => onEditData({ ...editData, space_type: e.target.value as LivingSpace['space_type'] })}
                 className="w-full px-4 py-3 border border-gray-200 rounded-2xl"
               >
                 <option value="apartment">Apartment</option>

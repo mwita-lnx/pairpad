@@ -1,6 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Star } from 'lucide-react'
 
 interface User {
   id: string
@@ -49,7 +50,10 @@ export default function HostProfile({ host }: HostProfileProps) {
     return (
       <div className="flex">
         {[1, 2, 3, 4, 5].map((star) => (
-          <span key={star} className={star <= stars ? "text-yellow-500" : "text-gray-400"}>★</span>
+          <Star
+            key={star}
+            className={`h-4 w-4 ${star <= stars ? "text-yellow-500 fill-yellow-500" : "text-gray-400"}`}
+          />
         ))}
       </div>
     )

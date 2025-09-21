@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Phone, Heart, Star, Home, Users, CheckCircle, XCircle, DollarSign, Lightbulb } from 'lucide-react'
 
 interface Room {
   id: string
@@ -48,8 +49,11 @@ export default function SpaceSidebar({
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-700">Total Space Rent:</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-700">
+                <DollarSign className="h-4 w-4" />
+                <span>Total Space Rent:</span>
+              </div>
               <span className="font-bold text-[#ff5a5f] text-xl">${totalRent}</span>
             </div>
             {rooms.length > 0 && (
@@ -73,8 +77,9 @@ export default function SpaceSidebar({
                 </div>
               </>
             )}
-            <div className="text-xs text-gray-700">
-              {utilitiesIncluded ? 'Utilities included' : 'Utilities separate'}
+            <div className="flex items-center gap-2 text-xs text-gray-700">
+              <Lightbulb className="h-3 w-3" />
+              <span>{utilitiesIncluded ? 'Utilities included' : 'Utilities separate'}</span>
             </div>
           </div>
         </CardContent>
@@ -87,26 +92,41 @@ export default function SpaceSidebar({
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-700">Total Rooms:</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-700">
+                <Home className="h-4 w-4" />
+                <span>Total Rooms:</span>
+              </div>
               <span className="font-medium text-gray-800">{totalRooms}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-700">Available:</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-700">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span>Available:</span>
+              </div>
               <span className="font-medium text-green-600">{availableRooms}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-700">Occupied:</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-700">
+                <XCircle className="h-4 w-4 text-blue-600" />
+                <span>Occupied:</span>
+              </div>
               <span className="font-medium text-blue-600">{occupiedRooms}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-700">Members:</span>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 text-gray-700">
+                <Users className="h-4 w-4" />
+                <span>Members:</span>
+              </div>
               <span className="font-medium text-gray-800">{membersCount}</span>
             </div>
             {averageRating && (
-              <div className="flex justify-between">
-                <span className="text-gray-700">Rating:</span>
-                <span className="font-medium text-gray-800">⭐ {averageRating.toFixed(1)}</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <Star className="h-4 w-4 text-yellow-500" />
+                  <span>Rating:</span>
+                </div>
+                <span className="font-medium text-gray-800">{averageRating.toFixed(1)}</span>
               </div>
             )}
           </div>
@@ -124,18 +144,20 @@ export default function SpaceSidebar({
             <Button
               onClick={onRequestMatch}
               disabled={requestingMatch}
-              className="w-full bg-[#ff5a5f] hover:bg-[#e54146]"
+              className="w-full bg-[#ff5a5f] hover:bg-[#e54146] flex items-center gap-2"
             >
-              {requestingMatch ? 'Sending...' : '💕 Request Match'}
+              <Heart className="h-4 w-4" />
+              {requestingMatch ? 'Sending...' : 'Request Match'}
             </Button>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full flex items-center gap-2"
             >
-              📞 Contact Host
+              <Phone className="h-4 w-4" />
+              Contact Host
             </Button>
             <div className="text-xs text-gray-700 text-center">
-              By requesting a match, you're expressing interest in living here
+              By requesting a match, you&apos;re expressing interest in living here
             </div>
           </CardContent>
         </Card>
