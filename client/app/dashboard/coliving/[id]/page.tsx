@@ -287,7 +287,7 @@ export default function LivingSpaceDetailPage() {
     return (
       <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ff5a5f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#5d41ab] mx-auto mb-4"></div>
           <p className="text-[#484848] text-xl">Loading space details...</p>
         </div>
       </div>
@@ -367,7 +367,7 @@ export default function LivingSpaceDetailPage() {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                      index === currentImageIndex ? 'border-[#ff5a5f]' : 'border-gray-300'
+                      index === currentImageIndex ? 'border-[#5d41ab]' : 'border-gray-300'
                     }`}
                   >
                     <img
@@ -388,7 +388,7 @@ export default function LivingSpaceDetailPage() {
         <div className="mb-8">
           <button
             onClick={() => router.push('/dashboard/coliving')}
-            className="text-[#ff5a5f] hover:text-[#e54146] font-medium mb-4"
+            className="text-[#5d41ab] hover:text-[#4c2d87] font-medium mb-4"
           >
             ← Back to Living Spaces
           </button>
@@ -415,7 +415,7 @@ export default function LivingSpaceDetailPage() {
                 {editMode && (
                   <Button
                     onClick={updateSpace}
-                    className="bg-[#ff5a5f] hover:bg-[#e54146]"
+                    className="bg-[#5d41ab] hover:bg-[#4c2d87]"
                   >
                     Save Changes
                   </Button>
@@ -505,7 +505,7 @@ export default function LivingSpaceDetailPage() {
             </p>
             <Button
               onClick={() => setShowMatchRequest(false)}
-              className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-3 rounded-2xl"
+              className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-8 py-3 rounded-2xl"
             >
               Got it!
             </Button>
@@ -606,7 +606,7 @@ export default function LivingSpaceDetailPage() {
                         type="checkbox"
                         checked={newRoom.has_private_bathroom}
                         onChange={(e) => setNewRoom({ ...newRoom, has_private_bathroom: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Private Bathroom</label>
                     </div>
@@ -615,7 +615,7 @@ export default function LivingSpaceDetailPage() {
                         type="checkbox"
                         checked={newRoom.has_balcony}
                         onChange={(e) => setNewRoom({ ...newRoom, has_balcony: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Balcony</label>
                     </div>
@@ -624,7 +624,7 @@ export default function LivingSpaceDetailPage() {
                         type="checkbox"
                         checked={newRoom.has_closet}
                         onChange={(e) => setNewRoom({ ...newRoom, has_closet: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Closet</label>
                     </div>
@@ -633,7 +633,7 @@ export default function LivingSpaceDetailPage() {
                         type="checkbox"
                         checked={newRoom.furnished}
                         onChange={(e) => setNewRoom({ ...newRoom, furnished: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Furnished</label>
                     </div>
@@ -642,7 +642,7 @@ export default function LivingSpaceDetailPage() {
                         type="checkbox"
                         checked={newRoom.air_conditioning}
                         onChange={(e) => setNewRoom({ ...newRoom, air_conditioning: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Air Conditioning</label>
                     </div>
@@ -651,7 +651,7 @@ export default function LivingSpaceDetailPage() {
                         type="checkbox"
                         checked={newRoom.is_available}
                         onChange={(e) => setNewRoom({ ...newRoom, is_available: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Available for Rent</label>
                     </div>
@@ -663,7 +663,7 @@ export default function LivingSpaceDetailPage() {
             <div className="flex gap-4 mt-8">
               <Button
                 onClick={addRoom}
-                className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-3 rounded-2xl font-medium"
+                className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-8 py-3 rounded-2xl font-medium"
               >
                 Add Room
               </Button>

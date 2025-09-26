@@ -21,7 +21,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen bg-white flex items-center justify-center font-['DynaPuff',Helvetica,Arial,sans-serif]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5d41ab] mx-auto mb-4"></div>
           <p className="text-lg text-[#484848] font-medium">Loading your perfect matches...</p>
         </div>
       </div>

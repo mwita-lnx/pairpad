@@ -157,7 +157,7 @@ export default function CoLivingPage() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff5a5f] mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5d41ab] mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading living spaces...</p>
         </div>
       </div>
@@ -264,7 +264,7 @@ export default function CoLivingPage() {
                     <select
                       value={formData.space_type}
                       onChange={(e) => setFormData({ ...formData, space_type: e.target.value as any })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                       required
                     >
                       <option value="apartment">Apartment</option>
@@ -282,7 +282,7 @@ export default function CoLivingPage() {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Describe your living space..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -421,7 +421,7 @@ export default function CoLivingPage() {
                     <select
                       value={formData.lease_duration_months}
                       onChange={(e) => setFormData({ ...formData, lease_duration_months: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                     >
                       <option value={3}>3 months</option>
                       <option value={6}>6 months</option>
@@ -446,7 +446,7 @@ export default function CoLivingPage() {
                 </Button>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto bg-[#ff5a5f] hover:bg-[#e54146]"
+                  className="w-full sm:w-auto bg-[#5d41ab] hover:bg-[#4c2d87]"
                   disabled={isCreating}
                 >
                   {isCreating ? 'Creating...' : 'Create Space'}
@@ -461,14 +461,14 @@ export default function CoLivingPage() {
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
             Living Spaces
-            <span className="text-[#ff5a5f] block">Management</span>
+            <span className="text-[#5d41ab] block">Management</span>
           </h1>
           <p className="text-lg sm:text-xl text-[#484848] font-light mb-6 sm:mb-8 px-4">
             Create, discover, and manage shared living spaces
           </p>
           <Button
             onClick={() => setShowCreateForm(true)}
-            className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-medium text-base sm:text-lg w-full sm:w-auto max-w-xs sm:max-w-none"
+            className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-medium text-base sm:text-lg w-full sm:w-auto max-w-xs sm:max-w-none"
           >
             Create New Space
           </Button>
@@ -482,7 +482,7 @@ export default function CoLivingPage() {
                 onClick={() => setViewMode('grid')}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all ${
                   viewMode === 'grid'
-                    ? 'bg-white text-[#ff5a5f] shadow-sm'
+                    ? 'bg-white text-[#5d41ab] shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -495,7 +495,7 @@ export default function CoLivingPage() {
                 onClick={() => setViewMode('list')}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all ${
                   viewMode === 'list'
-                    ? 'bg-white text-[#ff5a5f] shadow-sm'
+                    ? 'bg-white text-[#5d41ab] shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -515,7 +515,7 @@ export default function CoLivingPage() {
               <p className="text-[#484848] mb-6 sm:mb-8">Get started by creating your first co-living space</p>
               <Button
                 onClick={() => setShowCreateForm(true)}
-                className="bg-[#ff5a5f] hover:bg-[#e54146] w-full sm:w-auto"
+                className="bg-[#5d41ab] hover:bg-[#4c2d87] w-full sm:w-auto"
               >
                 Create Your First Space
               </Button>
@@ -575,7 +575,7 @@ export default function CoLivingPage() {
                       </CardDescription>
                     </div>
                     <div className="text-left sm:text-right shrink-0">
-                      <p className="text-xl sm:text-2xl font-bold text-[#ff5a5f]">${space.total_rent}</p>
+                      <p className="text-xl sm:text-2xl font-bold text-[#5d41ab]">${space.total_rent}</p>
                       <p className="text-sm text-gray-600">total rent/month</p>
                       {space.rooms.length > 0 && (
                         <p className="text-xs text-gray-500 mt-1">
@@ -639,7 +639,7 @@ export default function CoLivingPage() {
                           )}
                         </div>
                         <div className="text-left sm:text-right shrink-0">
-                          <p className="font-bold text-[#ff5a5f]">${room.monthly_rent || 'TBD'}</p>
+                          <p className="font-bold text-[#5d41ab]">${room.monthly_rent || 'TBD'}</p>
                           <p className="text-xs text-gray-600">per month</p>
                           {room.compatibility_score && (
                             <p className="text-xs text-green-600 font-medium">{room.compatibility_score}% match</p>
@@ -665,7 +665,7 @@ export default function CoLivingPage() {
                     {user && space.members?.some(m => m.user_id === user.id && m.role === 'admin') && (
                       <Button
                         onClick={() => router.push(`/dashboard/coliving/${space.id}`)}
-                        className="w-full bg-[#ff5a5f] hover:bg-[#e54146]"
+                        className="w-full bg-[#5d41ab] hover:bg-[#4c2d87]"
                       >
                         Manage Space
                       </Button>
@@ -727,7 +727,7 @@ export default function CoLivingPage() {
                             </p>
                           </div>
                           <div className="text-left sm:text-right mt-2 sm:mt-0">
-                            <p className="text-xl sm:text-2xl font-bold text-[#ff5a5f]">${space.total_rent}</p>
+                            <p className="text-xl sm:text-2xl font-bold text-[#5d41ab]">${space.total_rent}</p>
                             <p className="text-xs text-gray-600">total rent/month</p>
                           </div>
                         </div>
@@ -801,7 +801,7 @@ export default function CoLivingPage() {
                           {user && space.members?.some(m => m.user_id === user.id && m.role === 'admin') && (
                             <Button
                               onClick={() => router.push(`/dashboard/coliving/${space.id}`)}
-                              className="bg-[#ff5a5f] hover:bg-[#e54146] text-sm"
+                              className="bg-[#5d41ab] hover:bg-[#4c2d87] text-sm"
                             >
                               Manage Space
                             </Button>

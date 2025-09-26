@@ -185,7 +185,7 @@ export default function RegisterPage() {
           <div key={step} className="flex items-center">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
               step === currentStep
-                ? 'bg-[#ff5a5f] text-white'
+                ? 'bg-[#5d41ab] text-white'
                 : step < currentStep
                   ? 'bg-green-500 text-white'
                   : 'bg-gray-200 text-gray-500'
@@ -219,7 +219,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Email address"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
         </div>
@@ -232,7 +232,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Username"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
         </div>
@@ -243,7 +243,7 @@ export default function RegisterPage() {
           name="role"
           value={formData.role}
           onChange={handleChange}
-          className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
         >
           <option value="student">Student</option>
           <option value="professional">Young Professional</option>
@@ -259,12 +259,12 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Password"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all pr-16"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all pr-16"
           />
           <button
             type="button"
             onClick={handleShowPassword}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#9ca299] hover:text-[#ff5a5f] transition-colors"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#9ca299] hover:text-[#5d41ab] transition-colors"
           >
             {showPassword ? '👁️' : '👁️‍🗨️'}
           </button>
@@ -279,7 +279,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Confirm Password"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
         </div>
@@ -303,7 +303,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="First Name"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
         </div>
@@ -316,7 +316,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Last Name"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
         </div>
@@ -330,7 +330,7 @@ export default function RegisterPage() {
             value={formData.dateOfBirth}
             onChange={handleChange}
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>}
         </div>
@@ -341,7 +341,7 @@ export default function RegisterPage() {
             value={formData.gender}
             onChange={handleChange}
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
@@ -360,7 +360,7 @@ export default function RegisterPage() {
           value={formData.phoneNumber}
           onChange={handleChange}
           placeholder="Phone Number (optional)"
-          className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
         />
       </div>
 
@@ -372,7 +372,7 @@ export default function RegisterPage() {
             value={formData.occupation}
             onChange={handleChange}
             placeholder="Occupation/Job Title"
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
         </div>
 
@@ -383,7 +383,7 @@ export default function RegisterPage() {
             value={formData.education}
             onChange={handleChange}
             placeholder="Education Level/School"
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
         </div>
       </div>
@@ -406,7 +406,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Current City"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.currentCity && <p className="text-red-500 text-sm mt-1">{errors.currentCity}</p>}
         </div>
@@ -419,7 +419,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Preferred City for Living"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.preferredCity && <p className="text-red-500 text-sm mt-1">{errors.preferredCity}</p>}
         </div>
@@ -434,7 +434,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Min Budget ($/month)"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.budgetMin && <p className="text-red-500 text-sm mt-1">{errors.budgetMin}</p>}
         </div>
@@ -447,7 +447,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             placeholder="Max Budget ($/month)"
             required
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
           {errors.budgetMax && <p className="text-red-500 text-sm mt-1">{errors.budgetMax}</p>}
         </div>
@@ -461,7 +461,7 @@ export default function RegisterPage() {
             value={formData.moveInDate}
             onChange={handleChange}
             placeholder="Preferred Move-in Date"
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           />
         </div>
 
@@ -470,7 +470,7 @@ export default function RegisterPage() {
             name="leaseDuration"
             value={formData.leaseDuration}
             onChange={handleChange}
-            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           >
             <option value="">Lease Duration</option>
             <option value="3_months">3 months</option>
@@ -499,7 +499,7 @@ export default function RegisterPage() {
             name="smokingPreference"
             value={formData.smokingPreference}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           >
             <option value="no_preference">No Preference</option>
             <option value="smoker">I smoke</option>
@@ -513,7 +513,7 @@ export default function RegisterPage() {
             name="petsPreference"
             value={formData.petsPreference}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
           >
             <option value="no_preference">No Preference</option>
             <option value="has_pets">I have pets</option>
@@ -529,7 +529,7 @@ export default function RegisterPage() {
           name="guestsPreference"
           value={formData.guestsPreference}
           onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
         >
           <option value="rarely">Rarely have guests</option>
           <option value="occasionally">Occasionally have guests</option>
@@ -584,7 +584,7 @@ export default function RegisterPage() {
           name="quietHours"
           checked={formData.quietHours}
           onChange={handleChange}
-          className="mr-3 h-4 w-4 text-[#ff5a5f] focus:ring-[#ff5a5f] border-gray-300 rounded"
+          className="mr-3 h-4 w-4 text-[#5d41ab] focus:ring-[#5d41ab] border-gray-300 rounded"
         />
         <label className="text-[#484848]">I prefer quiet hours (10 PM - 8 AM)</label>
       </div>
@@ -597,7 +597,7 @@ export default function RegisterPage() {
           onChange={handleChange}
           placeholder="Tell us about your interests, hobbies, and what you like to do in your free time..."
           rows={3}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
         />
       </div>
 
@@ -609,7 +609,7 @@ export default function RegisterPage() {
           onChange={handleChange}
           placeholder="Tell potential roommates about yourself, your lifestyle, and what you're looking for in a living situation..."
           rows={4}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
         />
       </div>
     </div>
@@ -621,12 +621,12 @@ export default function RegisterPage() {
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-[#ff5a5f] text-2xl font-bold">
+            <Link href="/" className="text-[#5d41ab] text-2xl font-bold">
               PairPad
             </Link>
             <div className="flex gap-4">
               <Link href="/login">
-                <button className="text-[#484848] font-medium hover:text-[#ff5a5f] transition-colors">
+                <button className="text-[#484848] font-medium hover:text-[#5d41ab] transition-colors">
                   Sign In
                 </button>
               </Link>
@@ -641,7 +641,7 @@ export default function RegisterPage() {
           <div className="text-center mb-8">
             <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
               Join the
-              <span className="text-[#ff5a5f] block">PairPad community</span>
+              <span className="text-[#5d41ab] block">PairPad community</span>
             </h1>
             <p className="text-xl text-[#484848] font-light">
               Create your detailed profile to find your perfect roommate match
@@ -680,7 +680,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={handleNext}
-                    className="px-8 py-3 bg-[#ff5a5f] text-white rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105"
+                    className="px-8 py-3 bg-[#5d41ab] text-white rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105"
                   >
                     Next
                   </button>
@@ -688,7 +688,7 @@ export default function RegisterPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-8 py-3 bg-[#ff5a5f] text-white rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="px-8 py-3 bg-[#5d41ab] text-white rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isLoading ? 'Creating Account...' : 'Create Account'}
                   </button>
@@ -697,7 +697,7 @@ export default function RegisterPage() {
             </form>
 
             <div className="text-center mt-6">
-              <Link href="/login" className="text-[#9ca299] hover:text-[#ff5a5f] transition-colors">
+              <Link href="/login" className="text-[#9ca299] hover:text-[#5d41ab] transition-colors">
                 Already have an account? <span className="font-medium">Sign in</span>
               </Link>
             </div>

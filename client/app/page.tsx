@@ -29,17 +29,17 @@ export default function Home() {
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-[#ff5a5f] text-2xl font-bold">
+            <Link href="/" className="text-[#5d41ab] text-2xl font-bold">
               PairPad
             </Link>
             <div className="flex gap-4">
               <Link href="/login">
-                <button className="text-[#484848] font-medium hover:text-[#ff5a5f] transition-colors">
+                <button className="text-[#484848] font-medium hover:text-[#5d41ab] transition-colors">
                   Sign In
                 </button>
               </Link>
               <Link href="/register">
-                <button className="bg-[#ff5a5f] text-white px-6 py-2 rounded-full font-medium hover:bg-[#e54146] transition-all hover:scale-105">
+                <button className="bg-[#5d41ab] text-white px-6 py-2 rounded-full font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
                   Get Started
                 </button>
               </Link>
@@ -57,7 +57,7 @@ export default function Home() {
               <div className="space-y-6">
                 <h1 className="text-5xl lg:text-6xl font-bold text-[#484848] leading-tight">
                   Find your perfect
-                  <span className="text-[#ff5a5f] block">roommate</span>
+                  <span className="text-[#5d41ab] block">roommate</span>
                 </h1>
                 <p className="text-xl text-[#484848] font-light leading-relaxed max-w-lg">
                   Join thousands who have found their ideal living companion through our science-based compatibility matching system.
@@ -66,12 +66,12 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/register">
-                  <button className="bg-[#ff5a5f] text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-[#e54146] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
+                  <button className="bg-[#5d41ab] text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-[#4c2d87] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
                     Get Started Today
                   </button>
                 </Link>
                 <Link href="/dashboard/personality/assessment">
-                  <button className="bg-transparent border-2 border-[#ff5a5f] text-[#ff5a5f] px-8 py-4 rounded-full text-lg font-medium hover:bg-[#ff5a5f] hover:text-white transition-all hover:scale-105">
+                  <button className="bg-transparent border-2 border-[#5d41ab] text-[#5d41ab] px-8 py-4 rounded-full text-lg font-medium hover:bg-[#5d41ab] hover:text-white transition-all hover:scale-105">
                     Take Assessment
                   </button>
                 </Link>
@@ -80,26 +80,26 @@ export default function Home() {
               {/* Social Proof */}
               <div className="flex items-center gap-6 pt-8">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#ff5a5f]">10K+</div>
+                  <div className="text-2xl font-bold text-[#5d41ab]">10K+</div>
                   <div className="text-sm text-[#9ca299]">Happy Users</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#ff5a5f]">95%</div>
+                  <div className="text-2xl font-bold text-[#5d41ab]">95%</div>
                   <div className="text-sm text-[#9ca299]">Match Rate</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#ff5a5f]">4.9</div>
+                  <div className="text-2xl font-bold text-[#5d41ab]">4.9</div>
                   <div className="text-sm text-[#9ca299]">Rating</div>
                 </div>
               </div>
             </div>
 
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#ff5a5f]/20 to-[#ff5a5f]/10 rounded-3xl blur-3xl transform rotate-3"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#5d41ab]/20 to-[#5d41ab]/10 rounded-3xl blur-3xl transform rotate-3"></div>
               <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-full flex items-center justify-center text-white">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-full flex items-center justify-center text-white">
                       <BrainIcon />
                     </div>
                     <div>
@@ -108,7 +108,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full w-4/5 bg-gradient-to-r from-[#ff5a5f] to-[#e54146] rounded-full"></div>
+                    <div className="h-full w-4/5 bg-gradient-to-r from-[#5d41ab] to-[#4c2d87] rounded-full"></div>
                   </div>
                 </div>
               </div>
@@ -131,7 +131,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-white">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-white">
                 <BrainIcon />
               </div>
               <h3 className="text-xl font-bold text-[#484848] mb-4">Personality Assessment</h3>
@@ -141,7 +141,7 @@ export default function Home() {
             </div>
 
             <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-white">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-white">
                 <TargetIcon />
               </div>
               <h3 className="text-xl font-bold text-[#484848] mb-4">Smart Matching</h3>
@@ -151,7 +151,7 @@ export default function Home() {
             </div>
 
             <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-2">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-white">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-white">
                 <HomeIcon />
               </div>
               <h3 className="text-xl font-bold text-[#484848] mb-4">Co-Living Tools</h3>
@@ -164,7 +164,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-[#ff5a5f] to-[#e54146]">
+      <section className="py-20 bg-gradient-to-r from-[#5d41ab] to-[#4c2d87]">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Ready to find your perfect roommate?
@@ -173,7 +173,7 @@ export default function Home() {
             Join thousands of happy users who found their ideal living companion through PairPad.
           </p>
           <Link href="/register">
-            <button className="bg-white text-[#ff5a5f] px-8 py-4 rounded-full text-lg font-medium hover:scale-105 transition-all shadow-lg hover:shadow-xl">
+            <button className="bg-white text-[#5d41ab] px-8 py-4 rounded-full text-lg font-medium hover:scale-105 transition-all shadow-lg hover:shadow-xl">
               Get Started for Free
             </button>
           </Link>
@@ -185,7 +185,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <Link href="/" className="text-[#ff5a5f] text-2xl font-bold block mb-4">
+              <Link href="/" className="text-[#5d41ab] text-2xl font-bold block mb-4">
                 PairPad
               </Link>
               <p className="text-[#9ca299] text-sm leading-relaxed">
@@ -195,25 +195,25 @@ export default function Home() {
             <div>
               <h4 className="font-bold text-[#484848] mb-4">Product</h4>
               <div className="space-y-2">
-                <Link href="/dashboard/personality/assessment" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Assessment</Link>
-                <Link href="/dashboard/matches" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Matching</Link>
-                <Link href="/dashboard/coliving" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Co-Living</Link>
+                <Link href="/dashboard/personality/assessment" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Assessment</Link>
+                <Link href="/dashboard/matches" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Matching</Link>
+                <Link href="/dashboard/coliving" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Co-Living</Link>
               </div>
             </div>
             <div>
               <h4 className="font-bold text-[#484848] mb-4">Company</h4>
               <div className="space-y-2">
-                <Link href="/about" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">About</Link>
-                <Link href="/help" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Help Center</Link>
-                <Link href="/contact" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Contact</Link>
+                <Link href="/about" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">About</Link>
+                <Link href="/help" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Help Center</Link>
+                <Link href="/contact" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Contact</Link>
               </div>
             </div>
             <div>
               <h4 className="font-bold text-[#484848] mb-4">Legal</h4>
               <div className="space-y-2">
-                <Link href="/privacy" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Privacy</Link>
-                <Link href="/terms" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Terms</Link>
-                <Link href="/cookies" className="block text-[#9ca299] hover:text-[#ff5a5f] transition-colors">Cookies</Link>
+                <Link href="/privacy" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Privacy</Link>
+                <Link href="/terms" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Terms</Link>
+                <Link href="/cookies" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Cookies</Link>
               </div>
             </div>
           </div>

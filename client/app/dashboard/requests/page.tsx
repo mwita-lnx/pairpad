@@ -70,7 +70,7 @@ export default function MatchRequestsPage() {
             <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
               Match Requests
             </h1>
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto mt-8"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5d41ab] mx-auto mt-8"></div>
             <p className="mt-4 text-gray-600">Loading your match requests...</p>
           </div>
         </div>
@@ -93,8 +93,8 @@ export default function MatchRequestsPage() {
         {requests.length === 0 ? (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-              <div className="w-16 h-16 bg-[#ff5a5f]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Heart className="w-8 h-8 text-[#ff5a5f]" />
+              <div className="w-16 h-16 bg-[#5d41ab]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="w-8 h-8 text-[#5d41ab]" />
               </div>
               <h2 className="text-2xl font-bold text-[#484848] mb-4">
                 No Match Requests
@@ -116,8 +116,8 @@ export default function MatchRequestsPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-[#ff5a5f]/10 rounded-full flex items-center justify-center">
-                          <span className="text-[#ff5a5f] font-bold text-xl">
+                        <div className="w-16 h-16 bg-[#5d41ab]/10 rounded-full flex items-center justify-center">
+                          <span className="text-[#5d41ab] font-bold text-xl">
                             {userInitial}
                           </span>
                         </div>
@@ -168,7 +168,7 @@ export default function MatchRequestsPage() {
                           onClick={() => handleResponse(user.id, 'accept')}
                           size="sm"
                           disabled={isResponding}
-                          className="bg-[#ff5a5f] hover:bg-[#e54146]"
+                          className="bg-[#5d41ab] hover:bg-[#4c2d87]"
                         >
                           <Heart className="h-4 w-4 mr-1" />
                           Accept

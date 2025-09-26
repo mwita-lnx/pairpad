@@ -101,7 +101,7 @@ export default function SpaceDetails({
                     type="checkbox"
                     checked={editData.furnished || false}
                     onChange={(e) => onEditData({ ...editData, furnished: e.target.checked })}
-                    className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                    className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                   />
                   <label className="ml-2 text-sm text-[#484848]">Furnished</label>
                 </div>
@@ -110,7 +110,7 @@ export default function SpaceDetails({
                     type="checkbox"
                     checked={editData.utilities_included || false}
                     onChange={(e) => onEditData({ ...editData, utilities_included: e.target.checked })}
-                    className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                    className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                   />
                   <label className="ml-2 text-sm text-[#484848]">Utilities Included</label>
                 </div>
@@ -119,7 +119,7 @@ export default function SpaceDetails({
                     type="checkbox"
                     checked={editData.parking_available || false}
                     onChange={(e) => onEditData({ ...editData, parking_available: e.target.checked })}
-                    className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                    className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                   />
                   <label className="ml-2 text-sm text-[#484848]">Parking Available</label>
                 </div>
@@ -128,7 +128,7 @@ export default function SpaceDetails({
                     type="checkbox"
                     checked={editData.is_public || false}
                     onChange={(e) => onEditData({ ...editData, is_public: e.target.checked })}
-                    className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                    className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                   />
                   <label className="ml-2 text-sm text-[#484848]">Public Listing</label>
                 </div>

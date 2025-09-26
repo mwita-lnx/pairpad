@@ -40,7 +40,7 @@ export default function Dashboard() {
               Take our science-based assessment to discover your perfect roommate matches
             </p>
             <Link href="/dashboard/personality/assessment">
-              <button className="bg-[#ff5a5f] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:bg-[#e54146] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
+              <button className="bg-[#5d41ab] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:bg-[#4c2d87] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
                 Take Assessment
               </button>
             </Link>
@@ -71,11 +71,11 @@ export default function Dashboard() {
             <div key={trait.name}>
               <div className="flex justify-between items-center text-sm font-medium mb-2">
                 <span className="text-[#484848]">{trait.name}</span>
-                <span className="text-[#ff5a5f] font-bold">{trait.value}%</span>
+                <span className="text-[#5d41ab] font-bold">{trait.value}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
-                  className="h-3 rounded-full bg-[#ff5a5f] transition-all duration-500"
+                  className="h-3 rounded-full bg-[#5d41ab] transition-all duration-500"
                   style={{ width: `${trait.value}%` }}
                 />
               </div>
@@ -97,7 +97,7 @@ export default function Dashboard() {
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5d41ab] mx-auto mb-4"></div>
           <p className="text-gray-500">Finding your perfect matches...</p>
         </div>
       ) : suggestedMatches.length === 0 ? (
@@ -106,7 +106,7 @@ export default function Dashboard() {
             Complete your personality assessment to discover amazing roommate matches!
           </p>
           <Link href="/personality/assessment">
-            <button className="bg-[#ff5a5f] text-white px-6 py-3 rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105">
+            <button className="bg-[#5d41ab] text-white px-6 py-3 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
               Get Started
             </button>
           </Link>
@@ -122,7 +122,7 @@ export default function Dashboard() {
               <div key={match.id} className="bg-gray-50 p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#ff5a5f] rounded-full flex items-center justify-center text-white text-xl font-bold">
+                    <div className="w-12 h-12 bg-[#5d41ab] rounded-full flex items-center justify-center text-white text-xl font-bold">
                       {match.username.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -130,13 +130,13 @@ export default function Dashboard() {
                       <p className="text-sm text-gray-600 capitalize">
                         {match.role}
                       </p>
-                      <p className="text-sm text-[#ff5a5f] font-bold">
+                      <p className="text-sm text-[#5d41ab] font-bold">
                         {compatibilityScore}% compatible
                       </p>
                     </div>
                   </div>
                   <Link href={`/dashboard/matches/${match.id}`}>
-                    <button className="bg-[#ff5a5f] text-white px-6 py-2 rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105">
+                    <button className="bg-[#5d41ab] text-white px-6 py-2 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
                       View Profile
                     </button>
                   </Link>
@@ -145,7 +145,7 @@ export default function Dashboard() {
             )
           })}
           <Link href="/dashboard/matches">
-            <button className="w-full border-2 border-[#ff5a5f] text-[#ff5a5f] py-3 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+            <button className="w-full border-2 border-[#5d41ab] text-[#5d41ab] py-3 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
               View All Matches
             </button>
           </Link>
@@ -163,22 +163,22 @@ export default function Dashboard() {
       </div>
       <div className="space-y-3">
         <Link href="/dashboard/matches" className="block">
-          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
             Find Your Perfect Match
           </button>
         </Link>
         <Link href="/dashboard/messages" className="block">
-          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
             Check Messages
           </button>
         </Link>
         <Link href="/dashboard/coliving" className="block">
-          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
             Manage Co-Living
           </button>
         </Link>
         <Link href="/personality/assessment" className="block">
-          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+          <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
             Update Profile
           </button>
         </Link>
@@ -220,7 +220,7 @@ export default function Dashboard() {
           <span className="text-[#484848] font-medium">
             Account Type:
           </span>
-          <span className="font-bold text-[#ff5a5f] capitalize">{user?.role}</span>
+          <span className="font-bold text-[#5d41ab] capitalize">{user?.role}</span>
         </div>
       </div>
     </div>
@@ -232,7 +232,7 @@ export default function Dashboard() {
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
             Welcome back,
-            <span className="text-[#ff5a5f] block">
+            <span className="text-[#5d41ab] block">
               {user?.username}!
             </span>
           </h1>

@@ -45,7 +45,7 @@ export default function BookingModal({ room, onSubmit, onCancel }: BookingModalP
           <p className="text-gray-600 mb-2">{room.description}</p>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-500">{room.size_sqft} sq ft</span>
-            <span className="font-bold text-[#ff5a5f] text-xl">${room.monthly_rent}/month</span>
+            <span className="font-bold text-[#5d41ab] text-xl">${room.monthly_rent}/month</span>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export default function BookingModal({ room, onSubmit, onCancel }: BookingModalP
           <div className="flex gap-4 mt-8">
             <Button
               type="submit"
-              className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-3 rounded-2xl font-medium"
+              className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-8 py-3 rounded-2xl font-medium"
             >
               Submit Booking Request
             </Button>

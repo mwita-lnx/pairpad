@@ -116,11 +116,11 @@ export default function MatchesPage() {
             <div key={trait.name} className="space-y-1">
               <div className="flex justify-between text-sm font-medium">
                 <span className="text-[#484848]">{trait.name}</span>
-                <span className="text-[#ff5a5f]">{Math.round(compatibility)}%</span>
+                <span className="text-[#5d41ab]">{Math.round(compatibility)}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="h-2 rounded-full bg-[#ff5a5f]"
+                  className="h-2 rounded-full bg-[#5d41ab]"
                   style={{ width: `${compatibility}%` }}
                 />
               </div>
@@ -160,7 +160,7 @@ export default function MatchesPage() {
             return (
               <div key={item.name} className="flex justify-between items-center">
                 <span className="text-sm text-[#484848]">{item.name}</span>
-                <span className={`text-sm font-medium ${match ? 'text-green-600' : 'text-[#ff5a5f]'}`}>
+                <span className={`text-sm font-medium ${match ? 'text-green-600' : 'text-[#5d41ab]'}`}>
                   {match ? '✓ Compatible' : '✗ Different'}
                 </span>
               </div>
@@ -173,11 +173,11 @@ export default function MatchesPage() {
               <div key={item.name} className="space-y-1">
                 <div className="flex justify-between text-sm font-medium">
                   <span className="text-[#484848]">{item.name}</span>
-                  <span className="text-[#ff5a5f]">{Math.round(compatibility)}%</span>
+                  <span className="text-[#5d41ab]">{Math.round(compatibility)}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="h-2 rounded-full bg-[#ff5a5f]"
+                    className="h-2 rounded-full bg-[#5d41ab]"
                     style={{ width: `${compatibility}%` }}
                   />
                 </div>
@@ -194,7 +194,7 @@ export default function MatchesPage() {
       <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif]">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5d41ab] mx-auto"></div>
             <p className="mt-2 text-[#484848]">Finding your perfect matches...</p>
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function MatchesPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
             Your Perfect
-            <span className="text-[#ff5a5f] block">Matches</span>
+            <span className="text-[#5d41ab] block">Matches</span>
           </h1>
           <p className="text-xl text-[#484848] font-light">
             Discover roommates who are scientifically compatible with you
@@ -225,7 +225,7 @@ export default function MatchesPage() {
                 Take our personality assessment to get personalized matches
               </p>
               <Link href="/dashboard/personality/assessment">
-                <button className="bg-[#ff5a5f] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:bg-[#e54146] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
+                <button className="bg-[#5d41ab] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:bg-[#4c2d87] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
                   Take Assessment
                 </button>
               </Link>
@@ -268,7 +268,7 @@ export default function MatchesPage() {
                       <div className={`text-3xl font-bold ${
                         compatibilityScore >= 80 ? 'text-green-600' :
                         compatibilityScore >= 60 ? 'text-orange-500' :
-                        'text-[#ff5a5f]'
+                        'text-[#5d41ab]'
                       }`}>
                         {compatibilityScore}%
                       </div>
@@ -285,7 +285,7 @@ export default function MatchesPage() {
                     <button
                       onClick={() => handleAcceptMatch(matchUser)}
                       disabled={actionLoading === matchUser.id}
-                      className="flex-1 bg-[#ff5a5f] text-white py-3 rounded-2xl font-medium hover:bg-[#e54146] transition-all hover:scale-105 disabled:opacity-50"
+                      className="flex-1 bg-[#5d41ab] text-white py-3 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105 disabled:opacity-50"
                     >
                       {actionLoading === matchUser.id ? 'Processing...' : '❤️ Like'}
                     </button>
@@ -297,7 +297,7 @@ export default function MatchesPage() {
                       👎 Pass
                     </button>
                     <Link href={`/dashboard/matches/${matchUser.id}`} className="flex-1">
-                      <button className="w-full border-2 border-[#ff5a5f] text-[#ff5a5f] py-3 rounded-2xl font-medium hover:bg-[#ff5a5f] hover:text-white transition-all">
+                      <button className="w-full border-2 border-[#5d41ab] text-[#5d41ab] py-3 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
                         View Profile
                       </button>
                     </Link>

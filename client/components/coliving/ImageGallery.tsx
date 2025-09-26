@@ -75,7 +75,7 @@ export default function ImageGallery({
                 {isOwner && (
                   <button
                     onClick={onImageManager}
-                    className="bg-[#ff5a5f] text-white px-6 py-3 rounded-xl hover:bg-[#e54146] transition-colors font-medium"
+                    className="bg-[#5d41ab] text-white px-6 py-3 rounded-xl hover:bg-[#4c2d87] transition-colors font-medium"
                   >
                     Upload Photos
                   </button>

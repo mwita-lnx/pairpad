@@ -165,7 +165,7 @@ export default function PersonalityAssessment() {
     return (
       <div className="space-y-6 sm:space-y-8">
         <div className="text-center mb-8 sm:mb-12">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
             <BrainIcon />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#484848] mb-3 sm:mb-4 px-4">Personality Assessment</h2>
@@ -175,7 +175,7 @@ export default function PersonalityAssessment() {
         {questionsToUse.map((question, index) => (
           <div key={question.id} className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-start gap-3 sm:gap-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-full flex items-center justify-center flex-shrink-0 mt-1 text-white font-bold text-sm sm:text-base">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-full flex items-center justify-center flex-shrink-0 mt-1 text-white font-bold text-sm sm:text-base">
                 {index + 1}
               </div>
               <div className="flex-1">
@@ -191,8 +191,8 @@ export default function PersonalityAssessment() {
                       onClick={() => handlePersonalityResponse(question.id, value)}
                       className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform ${
                         responses[question.id] === value
-                          ? 'bg-gradient-to-br from-[#ff5a5f] to-[#e54146] text-white shadow-lg scale-110'
-                          : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#ff5a5f] hover:scale-105 hover:shadow-md'
+                          ? 'bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] text-white shadow-lg scale-110'
+                          : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#5d41ab] hover:scale-105 hover:shadow-md'
                       } ${clickedButton === question.id * 10 + value ? 'animate-pulse scale-105' : ''}`}
                     >
                       {value}
@@ -215,7 +215,7 @@ export default function PersonalityAssessment() {
   const renderLifestyleQuestions = () => (
     <div className="space-y-6 sm:space-y-8">
       <div className="text-center mb-8 sm:mb-12">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg text-white">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg text-white">
           <TargetIcon />
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold text-[#484848] mb-3 sm:mb-4 px-4">Lifestyle Preferences</h2>
@@ -225,7 +225,7 @@ export default function PersonalityAssessment() {
       {lifestyleQuestions.map((question, index) => (
         <div key={question.id} className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <div className="flex items-start gap-3 sm:gap-4">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-full flex items-center justify-center flex-shrink-0 mt-1 text-white font-bold text-sm sm:text-base">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-full flex items-center justify-center flex-shrink-0 mt-1 text-white font-bold text-sm sm:text-base">
               {index + 1}
             </div>
             <div className="flex-1">
@@ -243,8 +243,8 @@ export default function PersonalityAssessment() {
                         onClick={() => handleLifestyleResponse(question.key, value * 20)}
                         className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 transform ${
                           lifestyleResponses[question.key] === value * 20
-                            ? 'bg-gradient-to-br from-[#ff5a5f] to-[#e54146] text-white shadow-lg scale-110'
-                            : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#ff5a5f] hover:scale-105 hover:shadow-md'
+                            ? 'bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] text-white shadow-lg scale-110'
+                            : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#5d41ab] hover:scale-105 hover:shadow-md'
                         }`}
                       >
                         {value}
@@ -263,8 +263,8 @@ export default function PersonalityAssessment() {
                     onClick={() => handleLifestyleResponse(question.key, true)}
                     className={`px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-medium transition-all duration-300 transform ${
                       lifestyleResponses[question.key] === true
-                        ? 'bg-gradient-to-br from-[#ff5a5f] to-[#e54146] text-white shadow-lg scale-105'
-                        : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#ff5a5f] hover:scale-105 hover:shadow-md'
+                        ? 'bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] text-white shadow-lg scale-105'
+                        : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#5d41ab] hover:scale-105 hover:shadow-md'
                     }`}
                   >
                     Yes
@@ -274,8 +274,8 @@ export default function PersonalityAssessment() {
                     onClick={() => handleLifestyleResponse(question.key, false)}
                     className={`px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-medium transition-all duration-300 transform ${
                       lifestyleResponses[question.key] === false
-                        ? 'bg-gradient-to-br from-[#ff5a5f] to-[#e54146] text-white shadow-lg scale-105'
-                        : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#ff5a5f] hover:scale-105 hover:shadow-md'
+                        ? 'bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] text-white shadow-lg scale-105'
+                        : 'bg-white border-2 border-gray-200 text-[#484848] hover:border-[#5d41ab] hover:scale-105 hover:shadow-md'
                     }`}
                   >
                     No
@@ -292,7 +292,7 @@ export default function PersonalityAssessment() {
   const renderCommunicationStyle = () => (
     <div className="space-y-6 sm:space-y-8">
       <div className="text-center mb-8 sm:mb-12">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#ff5a5f] to-[#e54146] rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg text-white">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg text-white">
           <HomeIcon />
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold text-[#484848] mb-3 sm:mb-4 px-4">Communication Style</h2>
@@ -311,8 +311,8 @@ export default function PersonalityAssessment() {
             onClick={() => setCommunicationStyle(style.value)}
             className={`rounded-2xl p-6 sm:p-8 border-2 cursor-pointer transition-all duration-300 transform ${
               communicationStyle === style.value
-                ? 'bg-gradient-to-br from-[#ff5a5f] to-[#e54146] border-[#ff5a5f] text-white shadow-lg scale-105'
-                : 'bg-white border-gray-200 text-[#484848] hover:border-[#ff5a5f] hover:scale-105 hover:shadow-lg'
+                ? 'bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] border-[#5d41ab] text-white shadow-lg scale-105'
+                : 'bg-white border-gray-200 text-[#484848] hover:border-[#5d41ab] hover:scale-105 hover:shadow-lg'
             }`}
           >
             <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">{style.label}</h3>
@@ -333,12 +333,12 @@ export default function PersonalityAssessment() {
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-[#ff5a5f] text-xl sm:text-2xl font-bold">
+            <Link href="/" className="text-[#5d41ab] text-xl sm:text-2xl font-bold">
               PairPad
             </Link>
             <div className="flex gap-2 sm:gap-4">
               <Link href="/dashboard">
-                <button className="text-[#484848] text-sm sm:text-base font-medium hover:text-[#ff5a5f] transition-colors">
+                <button className="text-[#484848] text-sm sm:text-base font-medium hover:text-[#5d41ab] transition-colors">
                   Dashboard
                 </button>
               </Link>
@@ -362,7 +362,7 @@ export default function PersonalityAssessment() {
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
                     step <= currentStep
-                      ? 'bg-gradient-to-br from-[#ff5a5f] to-[#e54146] text-white shadow-lg'
+                      ? 'bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] text-white shadow-lg'
                       : 'bg-gray-100 text-gray-400'
                   }`}
                 >
@@ -371,7 +371,7 @@ export default function PersonalityAssessment() {
                   {step === 2 && <HomeIcon />}
                 </div>
                 <div className="ml-3 text-left">
-                  <div className={`text-sm font-medium ${step <= currentStep ? 'text-[#ff5a5f]' : 'text-gray-400'}`}>
+                  <div className={`text-sm font-medium ${step <= currentStep ? 'text-[#5d41ab]' : 'text-gray-400'}`}>
                     {step === 0 && 'Personality'}
                     {step === 1 && 'Lifestyle'}
                     {step === 2 && 'Communication'}
@@ -391,7 +391,7 @@ export default function PersonalityAssessment() {
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
                     step <= currentStep
-                      ? 'bg-gradient-to-br from-[#ff5a5f] to-[#e54146] text-white shadow-lg'
+                      ? 'bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] text-white shadow-lg'
                       : 'bg-gray-100 text-gray-400'
                   }`}
                 >
@@ -401,7 +401,7 @@ export default function PersonalityAssessment() {
                 </div>
                 {step < 2 && (
                   <div className={`w-16 h-1 mx-2 rounded-full transition-all duration-300 ${
-                    step < currentStep ? 'bg-gradient-to-r from-[#ff5a5f] to-[#e54146]' : 'bg-gray-200'
+                    step < currentStep ? 'bg-gradient-to-r from-[#5d41ab] to-[#4c2d87]' : 'bg-gray-200'
                   }`} />
                 )}
               </div>
@@ -432,14 +432,14 @@ export default function PersonalityAssessment() {
                       setStepTransition(false)
                     }, 350)
                   }}
-                  className="w-full px-6 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#ff5a5f] to-[#e54146] hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="w-full px-6 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#5d41ab] to-[#4c2d87] hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   Next Step
                 </button>
                 {currentStep > 0 && (
                   <button
                     onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-                    className="w-full px-6 py-3 rounded-full font-medium text-[#9ca299] border-2 border-gray-200 hover:border-[#ff5a5f] hover:text-[#ff5a5f] transition-all duration-300"
+                    className="w-full px-6 py-3 rounded-full font-medium text-[#9ca299] border-2 border-gray-200 hover:border-[#5d41ab] hover:text-[#5d41ab] transition-all duration-300"
                   >
                     Previous
                   </button>
@@ -450,13 +450,13 @@ export default function PersonalityAssessment() {
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full px-6 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#ff5a5f] to-[#e54146] hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl"
+                  className="w-full px-6 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#5d41ab] to-[#4c2d87] hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl"
                 >
                   {isSubmitting ? 'Submitting...' : 'Complete Assessment'}
                 </button>
                 <button
                   onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-                  className="w-full px-6 py-3 rounded-full font-medium text-[#9ca299] border-2 border-gray-200 hover:border-[#ff5a5f] hover:text-[#ff5a5f] transition-all duration-300"
+                  className="w-full px-6 py-3 rounded-full font-medium text-[#9ca299] border-2 border-gray-200 hover:border-[#5d41ab] hover:text-[#5d41ab] transition-all duration-300"
                 >
                   Previous
                 </button>
@@ -469,7 +469,7 @@ export default function PersonalityAssessment() {
             <button
               onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
               disabled={currentStep === 0}
-              className="px-8 py-4 rounded-full font-medium text-[#9ca299] border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#ff5a5f] hover:text-[#ff5a5f] transition-all duration-300"
+              className="px-8 py-4 rounded-full font-medium text-[#9ca299] border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#5d41ab] hover:text-[#5d41ab] transition-all duration-300"
             >
               Previous
             </button>
@@ -483,7 +483,7 @@ export default function PersonalityAssessment() {
                     setStepTransition(false)
                   }, 350)
                 }}
-                className="px-8 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#ff5a5f] to-[#e54146] hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="px-8 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#5d41ab] to-[#4c2d87] hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 Next Step
               </button>
@@ -491,7 +491,7 @@ export default function PersonalityAssessment() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="px-8 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#ff5a5f] to-[#e54146] hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl"
+                className="px-8 py-4 rounded-full font-medium text-white bg-gradient-to-r from-[#5d41ab] to-[#4c2d87] hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl"
               >
                 {isSubmitting ? 'Submitting...' : 'Complete Assessment'}
               </button>

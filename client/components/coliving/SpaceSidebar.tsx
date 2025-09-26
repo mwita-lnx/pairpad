@@ -54,7 +54,7 @@ export default function SpaceSidebar({
                 <DollarSign className="h-4 w-4" />
                 <span>Total Space Rent:</span>
               </div>
-              <span className="font-bold text-[#ff5a5f] text-xl">${totalRent}</span>
+              <span className="font-bold text-[#5d41ab] text-xl">${totalRent}</span>
             </div>
             {rooms.length > 0 && (
               <>
@@ -144,7 +144,7 @@ export default function SpaceSidebar({
             <Button
               onClick={onRequestMatch}
               disabled={requestingMatch}
-              className="w-full bg-[#ff5a5f] hover:bg-[#e54146] flex items-center gap-2"
+              className="w-full bg-[#5d41ab] hover:bg-[#4c2d87] flex items-center gap-2"
             >
               <Heart className="h-4 w-4" />
               {requestingMatch ? 'Sending...' : 'Request Match'}

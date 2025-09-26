@@ -53,7 +53,7 @@ export default function MessagesPage() {
             <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
               Messages
             </h1>
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff5a5f] mx-auto mt-8"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5d41ab] mx-auto mt-8"></div>
             <p className="mt-4 text-gray-600">Loading your conversations...</p>
           </div>
         </div>
@@ -76,8 +76,8 @@ export default function MessagesPage() {
 
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-              <div className="w-16 h-16 bg-[#ff5a5f]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-[#ff5a5f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-[#5d41ab]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-[#5d41ab]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
@@ -88,7 +88,7 @@ export default function MessagesPage() {
                 You haven't matched with anyone yet. Find compatible roommates to start messaging.
               </p>
               <Link href="/dashboard/matches">
-                <button className="bg-[#ff5a5f] text-white px-8 py-3 rounded-full font-medium hover:bg-[#e54e53] transition-colors">
+                <button className="bg-[#5d41ab] text-white px-8 py-3 rounded-full font-medium hover:bg-[#4c2d87] transition-colors">
                   Find Matches
                 </button>
               </Link>
@@ -123,8 +123,8 @@ export default function MessagesPage() {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 cursor-pointer group">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="w-14 h-14 bg-[#ff5a5f]/10 rounded-full flex items-center justify-center">
-                        <span className="text-[#ff5a5f] font-bold text-lg">
+                      <div className="w-14 h-14 bg-[#5d41ab]/10 rounded-full flex items-center justify-center">
+                        <span className="text-[#5d41ab] font-bold text-lg">
                           {otherUserInitial}
                         </span>
                       </div>
@@ -138,7 +138,7 @@ export default function MessagesPage() {
                             {match.compatibilityScore}% compatible
                           </span>
                           {unreadCount > 0 && (
-                            <span className="bg-[#ff5a5f] text-white text-xs px-2 py-1 rounded-full font-medium">
+                            <span className="bg-[#5d41ab] text-white text-xs px-2 py-1 rounded-full font-medium">
                               {unreadCount}
                             </span>
                           )}
@@ -162,7 +162,7 @@ export default function MessagesPage() {
                       </div>
                     </div>
 
-                    <div className="text-gray-400 group-hover:text-[#ff5a5f] transition-colors">
+                    <div className="text-gray-400 group-hover:text-[#5d41ab] transition-colors">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>

@@ -52,12 +52,12 @@ export default function LoginPage() {
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="text-[#ff5a5f] text-2xl font-bold">
+            <Link href="/" className="text-[#5d41ab] text-2xl font-bold">
               PairPad
             </Link>
             <div className="flex gap-4">
               <Link href="/register">
-                <button className="bg-[#ff5a5f] text-white px-6 py-2 rounded-full font-medium hover:bg-[#e54146] transition-all hover:scale-105">
+                <button className="bg-[#5d41ab] text-white px-6 py-2 rounded-full font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
                   Sign Up
                 </button>
               </Link>
@@ -73,7 +73,7 @@ export default function LoginPage() {
             <div className="text-center">
               <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
                 Welcome back to
-                <span className="text-[#ff5a5f] block">PairPad</span>
+                <span className="text-[#5d41ab] block">PairPad</span>
               </h1>
               <p className="text-xl text-[#484848] font-light">
                 Sign in to find your perfect roommate match
@@ -91,7 +91,7 @@ export default function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email address"
                       required
-                      className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all"
+                      className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -103,12 +103,12 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
                       required
-                      className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#ff5a5f] focus:border-transparent transition-all pr-16"
+                      className="w-full px-6 py-4 border border-gray-200 rounded-2xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all pr-16"
                     />
                     <button
                       type="button"
                       onClick={handleShowPassword}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#9ca299] hover:text-[#ff5a5f] transition-colors"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#9ca299] hover:text-[#5d41ab] transition-colors"
                     >
                       {showPassword ? '👁️' : '👁️‍🗨️'}
                     </button>
@@ -124,13 +124,13 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-[#ff5a5f] text-white py-4 rounded-2xl font-medium text-lg hover:bg-[#e54146] transition-all hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  className="w-full bg-[#5d41ab] text-white py-4 rounded-2xl font-medium text-lg hover:bg-[#4c2d87] transition-all hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 >
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </button>
 
                 <div className="text-center">
-                  <Link href="/register" className="text-[#9ca299] hover:text-[#ff5a5f] transition-colors">
+                  <Link href="/register" className="text-[#9ca299] hover:text-[#5d41ab] transition-colors">
                     Don't have an account? <span className="font-medium">Sign up</span>
                   </Link>
                 </div>

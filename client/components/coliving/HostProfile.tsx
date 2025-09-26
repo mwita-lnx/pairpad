@@ -68,8 +68,8 @@ export default function HostProfile({ host }: HostProfileProps) {
       <CardContent>
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-[#ff5a5f]/10 rounded-full flex items-center justify-center">
-              <span className="text-[#ff5a5f] font-bold text-lg">
+            <div className="w-12 h-12 bg-[#5d41ab]/10 rounded-full flex items-center justify-center">
+              <span className="text-[#5d41ab] font-bold text-lg">
                 {hostInitial}
               </span>
             </div>
@@ -126,7 +126,7 @@ export default function HostProfile({ host }: HostProfileProps) {
               <h5 className="font-medium text-[#484848] mb-3">Interests</h5>
               <div className="flex flex-wrap gap-2">
                 {interests.map((interest, index) => (
-                  <span key={index} className="px-3 py-1 bg-[#ff5a5f]/10 text-[#ff5a5f] rounded-full text-sm font-medium">
+                  <span key={index} className="px-3 py-1 bg-[#5d41ab]/10 text-[#5d41ab] rounded-full text-sm font-medium">
                     {interest}
                   </span>
                 ))}

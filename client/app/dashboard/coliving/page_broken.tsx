@@ -250,7 +250,7 @@ export default function CoLivingPage() {
     return (
       <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ff5a5f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#5d41ab] mx-auto mb-4"></div>
           <p className="text-[#484848] text-xl">Loading living spaces...</p>
         </div>
       </div>
@@ -264,7 +264,7 @@ export default function CoLivingPage() {
           <div className="mb-8">
             <button
               onClick={() => setShowRoomDetails(false)}
-              className="text-[#ff5a5f] hover:text-[#e54146] font-medium mb-4"
+              className="text-[#5d41ab] hover:text-[#4c2d87] font-medium mb-4"
             >
               ← Back to living spaces
             </button>
@@ -348,7 +348,7 @@ export default function CoLivingPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-yellow-700">Room Rent</p>
-                        <p className="text-2xl font-bold text-[#ff5a5f]">${selectedRoom.monthly_rent || 'TBD'}</p>
+                        <p className="text-2xl font-bold text-[#5d41ab]">${selectedRoom.monthly_rent || 'TBD'}</p>
                         <p className="text-xs text-yellow-600">per month</p>
                       </div>
                       <div>
@@ -448,7 +448,7 @@ export default function CoLivingPage() {
                 </CardHeader>
                 <CardContent>
                   {selectedRoom.is_available ? (
-                    <Button className="w-full mb-3 bg-[#ff5a5f] hover:bg-[#e54146]">
+                    <Button className="w-full mb-3 bg-[#5d41ab] hover:bg-[#4c2d87]">
                       Apply for This Room
                     </Button>
                   ) : (
@@ -597,7 +597,7 @@ export default function CoLivingPage() {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                      index === currentImageIndex ? 'border-[#ff5a5f]' : 'border-gray-300'
+                      index === currentImageIndex ? 'border-[#5d41ab]' : 'border-gray-300'
                     }`}
                   >
                     <img
@@ -617,14 +617,14 @@ export default function CoLivingPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold text-[#484848] mb-4">
             Living Spaces
-            <span className="text-[#ff5a5f] block">Management</span>
+            <span className="text-[#5d41ab] block">Management</span>
           </h1>
           <p className="text-xl text-[#484848] font-light mb-8">
             Create, discover, and manage shared living spaces
           </p>
           <Button
             onClick={() => setShowCreateForm(true)}
-            className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:scale-105 transition-all"
+            className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:scale-105 transition-all"
           >
             Create New Living Space
           </Button>
@@ -642,7 +642,7 @@ export default function CoLivingPage() {
                     value={newSpace.name}
                     onChange={(e) => setNewSpace({ ...newSpace, name: e.target.value })}
                     placeholder="e.g., Cozy Downtown Apartment"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -651,7 +651,7 @@ export default function CoLivingPage() {
                   <select
                     value={newSpace.space_type}
                     onChange={(e) => setNewSpace({ ...newSpace, space_type: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   >
                     <option value="apartment">Apartment</option>
                     <option value="house">House</option>
@@ -666,7 +666,7 @@ export default function CoLivingPage() {
                     value={newSpace.description}
                     onChange={(e) => setNewSpace({ ...newSpace, description: e.target.value })}
                     placeholder="Describe your living space..."
-                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                     rows={3}
                   />
                 </div>
@@ -677,7 +677,7 @@ export default function CoLivingPage() {
                     value={newSpace.address}
                     onChange={(e) => setNewSpace({ ...newSpace, address: e.target.value })}
                     placeholder="Street address"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -687,7 +687,7 @@ export default function CoLivingPage() {
                     value={newSpace.city}
                     onChange={(e) => setNewSpace({ ...newSpace, city: e.target.value })}
                     placeholder="City"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -697,7 +697,7 @@ export default function CoLivingPage() {
                     value={newSpace.state}
                     onChange={(e) => setNewSpace({ ...newSpace, state: e.target.value })}
                     placeholder="State"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -707,7 +707,7 @@ export default function CoLivingPage() {
                     value={newSpace.zip_code}
                     onChange={(e) => setNewSpace({ ...newSpace, zip_code: e.target.value })}
                     placeholder="ZIP Code"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -718,7 +718,7 @@ export default function CoLivingPage() {
                     value={newSpace.total_bedrooms}
                     onChange={(e) => setNewSpace({ ...newSpace, total_bedrooms: parseInt(e.target.value) || 1 })}
                     min="1"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -730,7 +730,7 @@ export default function CoLivingPage() {
                     value={newSpace.total_bathrooms}
                     onChange={(e) => setNewSpace({ ...newSpace, total_bathrooms: parseFloat(e.target.value) || 1 })}
                     min="1"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -741,7 +741,7 @@ export default function CoLivingPage() {
                     value={newSpace.total_rent}
                     onChange={(e) => setNewSpace({ ...newSpace, total_rent: parseInt(e.target.value) || 0 })}
                     min="0"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -751,7 +751,7 @@ export default function CoLivingPage() {
                     type="date"
                     value={newSpace.available_from}
                     onChange={(e) => setNewSpace({ ...newSpace, available_from: e.target.value })}
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -762,7 +762,7 @@ export default function CoLivingPage() {
                     value={newSpace.lease_duration_months}
                     onChange={(e) => setNewSpace({ ...newSpace, lease_duration_months: parseInt(e.target.value) || 12 })}
                     min="1"
-                    className="rounded-2xl border-gray-200 focus:ring-[#ff5a5f] focus:border-[#ff5a5f]"
+                    className="rounded-2xl border-gray-200 focus:ring-[#5d41ab] focus:border-[#5d41ab]"
                   />
                 </div>
 
@@ -773,7 +773,7 @@ export default function CoLivingPage() {
                         type="checkbox"
                         checked={newSpace.utilities_included}
                         onChange={(e) => setNewSpace({ ...newSpace, utilities_included: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Utilities Included</label>
                     </div>
@@ -782,7 +782,7 @@ export default function CoLivingPage() {
                         type="checkbox"
                         checked={newSpace.furnished}
                         onChange={(e) => setNewSpace({ ...newSpace, furnished: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Furnished</label>
                     </div>
@@ -791,7 +791,7 @@ export default function CoLivingPage() {
                         type="checkbox"
                         checked={newSpace.parking_available}
                         onChange={(e) => setNewSpace({ ...newSpace, parking_available: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Parking Available</label>
                     </div>
@@ -800,7 +800,7 @@ export default function CoLivingPage() {
                         type="checkbox"
                         checked={newSpace.is_public}
                         onChange={(e) => setNewSpace({ ...newSpace, is_public: e.target.checked })}
-                        className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                        className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                       />
                       <label className="ml-2 text-sm text-[#484848]">Make Public (allow others to discover)</label>
                     </div>
@@ -837,7 +837,7 @@ export default function CoLivingPage() {
               <div className="flex gap-4 mt-8">
                 <Button
                   onClick={createLivingSpace}
-                  className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-3 rounded-2xl font-medium"
+                  className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-8 py-3 rounded-2xl font-medium"
                 >
                   Create Space
                 </Button>
@@ -917,7 +917,7 @@ export default function CoLivingPage() {
                       <p className="text-sm text-gray-500 mt-1">{space.address}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-[#ff5a5f]">${space.total_rent}</p>
+                      <p className="text-2xl font-bold text-[#5d41ab]">${space.total_rent}</p>
                       <p className="text-sm text-gray-600">total rent/month</p>
                       {space.rooms.length > 0 && (
                         <p className="text-xs text-gray-500 mt-1">
@@ -1000,7 +1000,7 @@ export default function CoLivingPage() {
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-[#ff5a5f]">${room.monthly_rent || 'TBD'}</p>
+                          <p className="font-bold text-[#5d41ab]">${room.monthly_rent || 'TBD'}</p>
                           <p className="text-xs text-gray-600">per month</p>
                           {room.compatibility_score && (
                             <p className="text-xs text-green-600 font-medium">{room.compatibility_score}% match</p>
@@ -1027,7 +1027,7 @@ export default function CoLivingPage() {
                     {user && space.members?.some(m => m.user_id === user.id && m.role === 'admin') && (
                       <Button
                         onClick={() => router.push(`/dashboard/coliving/${space.id}`)}
-                        className="w-full bg-[#ff5a5f] hover:bg-[#e54146]"
+                        className="w-full bg-[#5d41ab] hover:bg-[#4c2d87]"
                       >
                         Manage Space
                       </Button>

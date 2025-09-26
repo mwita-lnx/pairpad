@@ -60,7 +60,7 @@ export default function RoomsSection({
           {isOwner && (
             <Button
               onClick={onAddRoom}
-              className="bg-[#ff5a5f] hover:bg-[#e54146]"
+              className="bg-[#5d41ab] hover:bg-[#4c2d87]"
             >
               Add Room
             </Button>
@@ -113,7 +113,7 @@ export default function RoomsSection({
                     </div>
                   </div>
                   <div className="text-right ml-4">
-                    <p className="font-bold text-[#ff5a5f] text-xl">${room.monthly_rent || 'TBD'}</p>
+                    <p className="font-bold text-[#5d41ab] text-xl">${room.monthly_rent || 'TBD'}</p>
                     <p className="text-sm text-gray-700">per month</p>
                     <span className={`inline-block px-3 py-1 rounded-full text-xs mb-2 font-medium ${
                       room.is_available
@@ -127,7 +127,7 @@ export default function RoomsSection({
                         <Button
                           onClick={() => onBookRoom(room)}
                           size="sm"
-                          className="bg-[#ff5a5f] hover:bg-[#e54146] text-white"
+                          className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white"
                         >
                           Book Room
                         </Button>

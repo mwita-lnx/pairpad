@@ -171,7 +171,7 @@ export default function BrowsePage() {
     return (
       <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ff5a5f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#5d41ab] mx-auto mb-4"></div>
           <p className="text-[#484848] text-xl">Finding amazing living spaces...</p>
         </div>
       </div>
@@ -275,7 +275,7 @@ export default function BrowsePage() {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                      index === currentImageIndex ? 'border-[#ff5a5f]' : 'border-gray-300'
+                      index === currentImageIndex ? 'border-[#5d41ab]' : 'border-gray-300'
                     }`}
                   >
                     <img
@@ -292,7 +292,7 @@ export default function BrowsePage() {
       )}
 
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#ff5a5f] to-[#e54146] text-white">
+      <div className="bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] text-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
             <h1 className="text-5xl lg:text-6xl font-bold mb-4">
@@ -316,7 +316,7 @@ export default function BrowsePage() {
                   />
                   <Button
                     onClick={handleSearch}
-                    className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-4 rounded-2xl font-medium text-lg"
+                    className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-8 py-4 rounded-2xl font-medium text-lg"
                   >
                     Search
                   </Button>
@@ -415,14 +415,14 @@ export default function BrowsePage() {
                   type="checkbox"
                   checked={filters.available_rooms_only}
                   onChange={(e) => setFilters({ ...filters, available_rooms_only: e.target.checked })}
-                  className="rounded text-[#ff5a5f] focus:ring-[#ff5a5f]"
+                  className="rounded text-[#5d41ab] focus:ring-[#5d41ab]"
                 />
                 <label className="ml-2 text-sm text-[#484848]">Only show spaces with available rooms</label>
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
-              <Button onClick={handleSearch} className="bg-[#ff5a5f] hover:bg-[#e54146]">
+              <Button onClick={handleSearch} className="bg-[#5d41ab] hover:bg-[#4c2d87]">
                 Apply Filters
               </Button>
               <Button onClick={clearFilters} variant="outline">
@@ -442,7 +442,7 @@ export default function BrowsePage() {
           </div>
           <Button
             onClick={() => router.push('/login')}
-            className="bg-[#ff5a5f] hover:bg-[#e54146]"
+            className="bg-[#5d41ab] hover:bg-[#4c2d87]"
           >
             Join PairPad
           </Button>
@@ -509,7 +509,7 @@ export default function BrowsePage() {
                       <p className="text-sm text-gray-500 mt-1">{space.address}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-[#ff5a5f]">${space.total_rent}</p>
+                      <p className="text-2xl font-bold text-[#5d41ab]">${space.total_rent}</p>
                       <p className="text-sm text-gray-600">total rent/month</p>
                       {space.rooms.length > 0 && (
                         <p className="text-xs text-gray-500 mt-1">
@@ -575,7 +575,7 @@ export default function BrowsePage() {
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-[#ff5a5f]">${room.monthly_rent || 'TBD'}</p>
+                          <p className="font-bold text-[#5d41ab]">${room.monthly_rent || 'TBD'}</p>
                           <p className="text-xs text-gray-600">per month</p>
                         </div>
                       </div>
@@ -598,7 +598,7 @@ export default function BrowsePage() {
                     </Button>
                     <Button
                       onClick={() => router.push('/register')}
-                      className="w-full bg-[#ff5a5f] hover:bg-[#e54146]"
+                      className="w-full bg-[#5d41ab] hover:bg-[#4c2d87]"
                     >
                       Apply to Live Here
                     </Button>
@@ -618,7 +618,7 @@ export default function BrowsePage() {
           <div className="flex gap-4 justify-center">
             <Button
               onClick={() => router.push('/register')}
-              className="bg-[#ff5a5f] hover:bg-[#e54146] text-white px-8 py-4 rounded-2xl font-medium text-lg"
+              className="bg-[#5d41ab] hover:bg-[#4c2d87] text-white px-8 py-4 rounded-2xl font-medium text-lg"
             >
               Join PairPad Free
             </Button>
