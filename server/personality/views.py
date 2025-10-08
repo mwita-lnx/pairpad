@@ -2,6 +2,7 @@ from rest_framework import status, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from authentication.models import OnboardingProgress
 
 from .models import PersonalityProfile, AssessmentQuestion
 from .serializers import (
@@ -29,6 +30,14 @@ def submit_assessment(request):
 
     if serializer.is_valid():
         profile = serializer.save()
+
+        # Mark assessment as completed in onboarding progress
+        try:
+            onboarding_progress = request.user.onboarding_progress
+            onboarding_progress.mark_step_complete(OnboardingProgress.STEP_ASSESSMENT_DONE)
+        except OnboardingProgress.DoesNotExist:
+            pass
+
         return Response({
             'message': 'Assessment completed successfully',
             'profile': PersonalityProfileSerializer(profile).data

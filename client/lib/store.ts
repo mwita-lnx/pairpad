@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import Cookies from 'js-cookie'
-import { User, Match, Message, PersonalityProfile } from './utils'
+import { User, Match, Message, PersonalityProfile, OnboardingProgress } from './utils'
 
 interface AuthState {
   user: User | null
@@ -129,3 +129,33 @@ export const usePersonalityStore = create<PersonalityState>((set) => ({
   completeAssessment: () => set({ isCompleted: true }),
   resetAssessment: () => set({ assessmentData: {}, isCompleted: false })
 }))
+
+interface OnboardingState {
+  onboardingProgress: OnboardingProgress | null
+  isLoading: boolean
+  setOnboardingProgress: (progress: OnboardingProgress) => void
+  updateProgress: (step: string) => void
+  clearProgress: () => void
+}
+
+export const useOnboardingStore = create<OnboardingState>()(
+  persist(
+    (set) => ({
+      onboardingProgress: null,
+      isLoading: false,
+      setOnboardingProgress: (progress) => set({ onboardingProgress: progress }),
+      updateProgress: (step) => set((state) => {
+        if (!state.onboardingProgress) return state
+        // This will be updated via API call, just update local state temporarily
+        return { onboardingProgress: { ...state.onboardingProgress, currentStep: step } }
+      }),
+      clearProgress: () => set({ onboardingProgress: null })
+    }),
+    {
+      name: 'onboarding-storage',
+      partialize: (state) => ({
+        onboardingProgress: state.onboardingProgress
+      })
+    }
+  )
+)

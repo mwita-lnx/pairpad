@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { User, PersonalityProfile, Match, Message } from './utils'
+import { User, PersonalityProfile, Match, Message, OnboardingProgress } from './utils'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
@@ -50,6 +50,27 @@ export const auth = {
 
   getProfile: async (): Promise<User> => {
     const response = await api.get('/auth/profile/')
+    return response.data
+  },
+
+  updateProfile: async (userData: Partial<User>): Promise<User> => {
+    const response = await api.patch('/auth/profile/', userData)
+    return response.data
+  },
+
+  // Onboarding progress functions
+  getOnboardingProgress: async (): Promise<OnboardingProgress> => {
+    const response = await api.get('/auth/onboarding/progress/')
+    return response.data
+  },
+
+  updateOnboardingProgress: async (step: string): Promise<OnboardingProgress> => {
+    const response = await api.post('/auth/onboarding/progress/update/', { step })
+    return response.data
+  },
+
+  recalculateOnboardingProgress: async (): Promise<OnboardingProgress> => {
+    const response = await api.post('/auth/onboarding/progress/recalculate/')
     return response.data
   }
 }

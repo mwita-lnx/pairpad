@@ -71,6 +71,15 @@ export default function RegisterPage() {
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Prevent Enter key from submitting form on steps 1-3
+    if (e.key === 'Enter' && currentStep !== 4) {
+      e.preventDefault()
+      console.log('Enter pressed on step', currentStep, '- preventing submission')
+      handleNext()
+    }
+  }
+
   const validateStep = (step: number) => {
     const newErrors: { [key: string]: string } = {}
 
@@ -104,7 +113,14 @@ export default function RegisterPage() {
     return newErrors
   }
 
-  const handleNext = () => {
+  const handleNext = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
+    console.log('handleNext called, current step:', currentStep)
+
     const stepErrors = validateStep(currentStep)
     if (Object.keys(stepErrors).length > 0) {
       setErrors(stepErrors)
@@ -121,6 +137,18 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    console.log('Form submitted, current step:', currentStep)
+
+    // Prevent submission if not on the final step
+    if (currentStep !== 4) {
+      console.log('Not on final step, preventing submission!')
+      // Don't call handleNext here, just prevent submission
+      return
+    }
+
+    console.log('On final step, validating all steps...')
+
     const allErrors = {
       ...validateStep(1),
       ...validateStep(2),
@@ -128,11 +156,15 @@ export default function RegisterPage() {
       ...validateStep(4)
     }
 
+    console.log('Validation errors:', allErrors)
+
     if (Object.keys(allErrors).length > 0) {
       setErrors(allErrors)
+      toast.error('Please fix the errors before submitting')
       return
     }
 
+    console.log('No validation errors, proceeding with registration...')
     setIsLoading(true)
     setErrors({})
 
@@ -165,12 +197,44 @@ export default function RegisterPage() {
         interests: formData.interests,
       }
 
+      console.log('Sending registration data to API...')
       const { user } = await auth.register(registrationData)
+      console.log('Registration successful, user:', user)
+
       login(user)
       toast.success(`Welcome to PairPad, ${user.username}!`)
-      window.location.href = '/dashboard/personality/assessment'
+
+      console.log('Redirecting to personality assessment...')
+      window.location.href = '/personality/assessment'
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || err.response?.data?.error || 'Registration failed. Please try again.'
+      let errorMessage = 'Registration failed. Please try again.'
+
+      if (err.response?.data) {
+        const errorData = err.response.data
+
+        // Handle non_field_errors (array format)
+        if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+          errorMessage = errorData.non_field_errors.join(', ')
+        }
+        // Handle detail (string format)
+        else if (errorData.detail) {
+          errorMessage = errorData.detail
+        }
+        // Handle error (string format)
+        else if (errorData.error) {
+          errorMessage = errorData.error
+        }
+        // Handle field-specific errors (object format)
+        else if (typeof errorData === 'object') {
+          const firstError = Object.values(errorData)[0]
+          if (Array.isArray(firstError)) {
+            errorMessage = firstError[0]
+          } else if (typeof firstError === 'string') {
+            errorMessage = firstError
+          }
+        }
+      }
+
       setErrors({ general: errorMessage })
       toast.error(errorMessage)
     } finally {
@@ -653,7 +717,7 @@ export default function RegisterPage() {
 
           {/* Form */}
           <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
               {currentStep === 1 && renderStep1()}
               {currentStep === 2 && renderStep2()}
               {currentStep === 3 && renderStep3()}
@@ -679,7 +743,10 @@ export default function RegisterPage() {
                 {currentStep < 4 ? (
                   <button
                     type="button"
-                    onClick={handleNext}
+                    onClick={(e) => {
+                      console.log('Next button clicked!')
+                      handleNext(e)
+                    }}
                     className="px-8 py-3 bg-[#5d41ab] text-white rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105"
                   >
                     Next
@@ -688,6 +755,10 @@ export default function RegisterPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
+                    onClick={(e) => {
+                      console.log('Create Account button clicked!')
+                      // Let the form's onSubmit handler take over
+                    }}
                     className="px-8 py-3 bg-[#5d41ab] text-white rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {isLoading ? 'Creating Account...' : 'Create Account'}

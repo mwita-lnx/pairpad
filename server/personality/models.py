@@ -34,6 +34,9 @@ class PersonalityProfile(models.Model):
         default='diplomatic'
     )
 
+    # Complete lifestyle data as JSON
+    lifestyle_data = models.JSONField(default=dict, blank=True)
+
     # Assessment metadata
     completed_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

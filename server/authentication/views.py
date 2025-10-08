@@ -8,8 +8,11 @@ from django.contrib.auth import get_user_model
 from .serializers import (
     UserRegistrationSerializer,
     UserSerializer,
-    CustomTokenObtainPairSerializer
+    CustomTokenObtainPairSerializer,
+    OnboardingProgressSerializer,
+    OnboardingProgressUpdateSerializer
 )
+from .models import OnboardingProgress
 
 User = get_user_model()
 
@@ -26,6 +29,10 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
+        # Create onboarding progress record
+        onboarding_progress = OnboardingProgress.objects.create(user=user)
+        onboarding_progress.mark_step_complete(OnboardingProgress.STEP_ACCOUNT)
+
         # Generate tokens for the new user
         refresh = RefreshToken.for_user(user)
         access_token = refresh.access_token
@@ -40,7 +47,8 @@ class UserRegistrationView(generics.CreateAPIView):
             'tokens': {
                 'access': str(access_token),
                 'refresh': str(refresh)
-            }
+            },
+            'onboarding_progress': OnboardingProgressSerializer(onboarding_progress).data
         }, status=status.HTTP_201_CREATED)
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
@@ -81,3 +89,43 @@ def verify_token_view(request):
         'user': UserSerializer(request.user).data,
         'message': 'Token is valid'
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_onboarding_progress(request):
+    """
+    Get current user's onboarding progress
+    """
+    try:
+        onboarding_progress = request.user.onboarding_progress
+        serializer = OnboardingProgressSerializer(onboarding_progress)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except OnboardingProgress.DoesNotExist:
+        # Create onboarding progress if it doesn't exist
+        onboarding_progress = OnboardingProgress.objects.create(user=request.user)
+        onboarding_progress.mark_step_complete(OnboardingProgress.STEP_ACCOUNT)
+        serializer = OnboardingProgressSerializer(onboarding_progress)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def update_onboarding_progress(request):
+    """
+    Update onboarding progress step
+    """
+    try:
+        onboarding_progress = request.user.onboarding_progress
+    except OnboardingProgress.DoesNotExist:
+        onboarding_progress = OnboardingProgress.objects.create(user=request.user)
+
+    serializer = OnboardingProgressUpdateSerializer(data=request.data)
+    if serializer.is_valid():
+        onboarding_progress = serializer.update_progress(onboarding_progress)
+        return Response(
+            OnboardingProgressSerializer(onboarding_progress).data,
+            status=status.HTTP_200_OK
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

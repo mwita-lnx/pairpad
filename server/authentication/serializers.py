@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from .models import OnboardingProgress
 
 User = get_user_model()
 
@@ -122,3 +123,118 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['user'] = UserSerializer(self.user).data
 
         return data
+
+
+class OnboardingProgressSerializer(serializers.ModelSerializer):
+    """Serializer for onboarding progress tracking"""
+
+    user = UserSerializer(read_only=True)
+    statusDisplay = serializers.CharField(source='get_status_display', read_only=True)
+    nextStep = serializers.SerializerMethodField()
+    isComplete = serializers.BooleanField(source='is_complete', read_only=True)
+    breakdown = serializers.SerializerMethodField()
+    profileCompletenessScore = serializers.SerializerMethodField()
+
+    # Camel case field names for frontend
+    overallProgress = serializers.IntegerField(source='progress_percentage', read_only=True)
+    registrationProgress = serializers.SerializerMethodField()
+    assessmentProgress = serializers.SerializerMethodField()
+    completedStepsCount = serializers.SerializerMethodField()
+    totalSteps = serializers.SerializerMethodField()
+    currentStep = serializers.SerializerMethodField()
+
+    # Timestamps
+    createdAt = serializers.DateTimeField(source='created_at', read_only=True)
+    updatedAt = serializers.DateTimeField(source='updated_at', read_only=True)
+    completedAt = serializers.DateTimeField(source='completed_at', read_only=True)
+
+    # Individual step completion status for backward compatibility
+    accountCreated = serializers.SerializerMethodField()
+    personalInfoCompleted = serializers.SerializerMethodField()
+    locationPreferencesCompleted = serializers.SerializerMethodField()
+    lifestylePreferencesCompleted = serializers.SerializerMethodField()
+    assessmentStarted = serializers.SerializerMethodField()
+    assessmentCompleted = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OnboardingProgress
+        fields = [
+            'id', 'user', 'status', 'statusDisplay',
+            'overallProgress', 'registrationProgress', 'assessmentProgress',
+            'completedStepsCount', 'totalSteps', 'currentStep',
+            'profileCompletenessScore', 'nextStep', 'isComplete', 'breakdown',
+            'accountCreated', 'personalInfoCompleted', 'locationPreferencesCompleted',
+            'lifestylePreferencesCompleted', 'assessmentStarted', 'assessmentCompleted',
+            'createdAt', 'updatedAt', 'completedAt'
+        ]
+        read_only_fields = ['id', 'user', 'status']
+
+    def get_nextStep(self, obj):
+        """Get the next step in onboarding"""
+        return obj.get_next_step_info()
+
+    def get_breakdown(self, obj):
+        """Get progress breakdown"""
+        return obj.get_progress_breakdown()
+
+    def get_registrationProgress(self, obj):
+        """Get registration progress percentage"""
+        return obj.get_progress_breakdown()['registration']
+
+    def get_assessmentProgress(self, obj):
+        """Get assessment progress percentage"""
+        return obj.get_progress_breakdown()['assessment']
+
+    def get_completedStepsCount(self, obj):
+        """Get number of completed steps"""
+        return obj.get_progress_breakdown()['completed_steps']
+
+    def get_totalSteps(self, obj):
+        """Get total number of steps"""
+        return obj.get_progress_breakdown()['total_steps']
+
+    def get_currentStep(self, obj):
+        """Get current step identifier"""
+        return obj.get_current_step()
+
+    def get_profileCompletenessScore(self, obj):
+        """Get profile completeness score"""
+        return obj.get_profile_completeness()
+
+    # Individual step getters for backward compatibility
+    def get_accountCreated(self, obj):
+        return obj.is_step_complete(OnboardingProgress.STEP_ACCOUNT)
+
+    def get_personalInfoCompleted(self, obj):
+        return obj.is_step_complete(OnboardingProgress.STEP_PERSONAL)
+
+    def get_locationPreferencesCompleted(self, obj):
+        return obj.is_step_complete(OnboardingProgress.STEP_LOCATION)
+
+    def get_lifestylePreferencesCompleted(self, obj):
+        return obj.is_step_complete(OnboardingProgress.STEP_LIFESTYLE)
+
+    def get_assessmentStarted(self, obj):
+        return obj.is_step_complete(OnboardingProgress.STEP_ASSESSMENT_START)
+
+    def get_assessmentCompleted(self, obj):
+        return obj.is_step_complete(OnboardingProgress.STEP_ASSESSMENT_DONE)
+
+
+class OnboardingProgressUpdateSerializer(serializers.Serializer):
+    """Serializer for updating onboarding progress steps"""
+
+    step = serializers.ChoiceField(choices=[
+        ('account_created', 'Account Created'),
+        ('personal_info', 'Personal Info'),
+        ('location_preferences', 'Location Preferences'),
+        ('lifestyle_preferences', 'Lifestyle Preferences'),
+        ('assessment_started', 'Assessment Started'),
+        ('assessment_completed', 'Assessment Completed'),
+    ])
+
+    def update_progress(self, onboarding_progress):
+        """Update the onboarding progress based on the step"""
+        step = self.validated_data['step']
+        onboarding_progress.mark_step_complete(step)
+        return onboarding_progress

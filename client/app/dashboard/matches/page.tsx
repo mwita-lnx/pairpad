@@ -224,7 +224,7 @@ export default function MatchesPage() {
               <p className="text-gray-600 mb-6">
                 Take our personality assessment to get personalized matches
               </p>
-              <Link href="/dashboard/personality/assessment">
+              <Link href="/personality/assessment">
                 <button className="bg-[#5d41ab] text-white px-8 py-4 rounded-2xl font-medium text-lg hover:bg-[#4c2d87] transition-all hover:scale-105 shadow-lg hover:shadow-xl">
                   Take Assessment
                 </button>

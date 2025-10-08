@@ -47,38 +47,73 @@ class AssessmentResponseSerializer(serializers.ModelSerializer):
         return attrs
 
 class PersonalityAssessmentSubmissionSerializer(serializers.Serializer):
-    responses = AssessmentResponseSerializer(many=True)
-    lifestyle_preferences = serializers.DictField(required=False)
+    responses = AssessmentResponseSerializer(many=True, required=False)
+
+    # Direct personality trait scores (0-100)
+    openness = serializers.IntegerField(required=False, min_value=0, max_value=100)
+    conscientiousness = serializers.IntegerField(required=False, min_value=0, max_value=100)
+    extraversion = serializers.IntegerField(required=False, min_value=0, max_value=100)
+    agreeableness = serializers.IntegerField(required=False, min_value=0, max_value=100)
+    neuroticism = serializers.IntegerField(required=False, min_value=0, max_value=100)
+
+    # Lifestyle preferences
+    cleanliness_level = serializers.IntegerField(required=False, min_value=0, max_value=100)
+    social_level = serializers.IntegerField(required=False, min_value=0, max_value=100)
+    quiet_hours = serializers.BooleanField(required=False)
+    pets_allowed = serializers.BooleanField(required=False)
+    smoking_allowed = serializers.BooleanField(required=False)
+
+    # Communication style
     communication_style = serializers.ChoiceField(
         choices=PersonalityProfile.COMMUNICATION_STYLES,
         default='diplomatic'
     )
 
-    def validate_responses(self, value):
-        if len(value) < 5:  # At least one question per Big Five trait
-            raise serializers.ValidationError("At least 5 responses are required")
-        return value
+    # All lifestyle data as JSON
+    lifestyle_data = serializers.JSONField(required=False)
+    lifestyle_preferences = serializers.DictField(required=False)  # Backward compatibility
+
+    def validate(self, attrs):
+        # Accept either responses or direct scores
+        has_responses = attrs.get('responses')
+        has_direct_scores = any(k in attrs for k in ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'])
+
+        if not has_responses and not has_direct_scores:
+            raise serializers.ValidationError("Either responses or direct personality scores are required")
+
+        return attrs
 
     def create(self, validated_data):
         user = self.context['request'].user
-        responses = validated_data['responses']
+        responses = validated_data.get('responses', [])
         lifestyle_prefs = validated_data.get('lifestyle_preferences', {})
         communication_style = validated_data.get('communication_style', 'diplomatic')
+        lifestyle_data = validated_data.get('lifestyle_data', {})
 
-        # Calculate personality scores
-        trait_scores = self.calculate_personality_scores(responses)
+        # Calculate personality scores - use direct scores if provided, otherwise calculate from responses
+        if any(k in validated_data for k in ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism']):
+            trait_scores = {
+                'openness': validated_data.get('openness', 50),
+                'conscientiousness': validated_data.get('conscientiousness', 50),
+                'extraversion': validated_data.get('extraversion', 50),
+                'agreeableness': validated_data.get('agreeableness', 50),
+                'neuroticism': validated_data.get('neuroticism', 50),
+            }
+        else:
+            trait_scores = self.calculate_personality_scores(responses)
 
         # Create or update personality profile
         profile, created = PersonalityProfile.objects.get_or_create(
             user=user,
             defaults={
                 **trait_scores,
-                'cleanliness_level': lifestyle_prefs.get('cleanliness', 50),
-                'social_level': lifestyle_prefs.get('socialLevel', 50),
-                'quiet_hours': lifestyle_prefs.get('quietHours', False),
-                'pets_allowed': lifestyle_prefs.get('pets', False),
-                'smoking_allowed': lifestyle_prefs.get('smoking', False),
+                'cleanliness_level': validated_data.get('cleanliness_level', lifestyle_prefs.get('cleanliness', 50)),
+                'social_level': validated_data.get('social_level', lifestyle_prefs.get('socialLevel', 50)),
+                'quiet_hours': validated_data.get('quiet_hours', lifestyle_prefs.get('quietHours', False)),
+                'pets_allowed': validated_data.get('pets_allowed', lifestyle_prefs.get('pets', False)),
+                'smoking_allowed': validated_data.get('smoking_allowed', lifestyle_prefs.get('smoking', False)),
                 'communication_style': communication_style,
+                'lifestyle_data': lifestyle_data,
             }
         )
 
@@ -87,12 +122,13 @@ class PersonalityAssessmentSubmissionSerializer(serializers.Serializer):
             for field, value in trait_scores.items():
                 setattr(profile, field, value)
 
-            profile.cleanliness_level = lifestyle_prefs.get('cleanliness', profile.cleanliness_level)
-            profile.social_level = lifestyle_prefs.get('socialLevel', profile.social_level)
-            profile.quiet_hours = lifestyle_prefs.get('quietHours', profile.quiet_hours)
-            profile.pets_allowed = lifestyle_prefs.get('pets', profile.pets_allowed)
-            profile.smoking_allowed = lifestyle_prefs.get('smoking', profile.smoking_allowed)
+            profile.cleanliness_level = validated_data.get('cleanliness_level', lifestyle_prefs.get('cleanliness', profile.cleanliness_level))
+            profile.social_level = validated_data.get('social_level', lifestyle_prefs.get('socialLevel', profile.social_level))
+            profile.quiet_hours = validated_data.get('quiet_hours', lifestyle_prefs.get('quietHours', profile.quiet_hours))
+            profile.pets_allowed = validated_data.get('pets_allowed', lifestyle_prefs.get('pets', profile.pets_allowed))
+            profile.smoking_allowed = validated_data.get('smoking_allowed', lifestyle_prefs.get('smoking', profile.smoking_allowed))
             profile.communication_style = communication_style
+            profile.lifestyle_data = lifestyle_data
             profile.save()
 
         # Save individual responses

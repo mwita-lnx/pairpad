@@ -89,6 +89,17 @@ export interface User {
   // Profile Information
   bio?: string
   interests?: string
+
+  // Matching scores (added by matching algorithm)
+  compatibility_score?: number
+  similarity_score?: number
+  score_breakdown?: {
+    lifestyle: number
+    basic_lifestyle: number
+    personality: number
+    communication: number
+    location: number
+  }
 }
 
 export interface Match {
@@ -96,6 +107,14 @@ export interface Match {
   user1Id: string
   user2Id: string
   compatibilityScore: number
+  similarity_score?: number
+  score_breakdown?: {
+    lifestyle: number
+    basic_lifestyle: number
+    personality: number
+    communication: number
+    location: number
+  }
   status: 'pending' | 'accepted' | 'rejected' | 'mutual'
   createdAt: string
 }
@@ -108,4 +127,51 @@ export interface Message {
   timestamp: string
   readStatus: boolean
   matchId: string
+}
+
+export interface OnboardingProgress {
+  id: string
+  user: User
+  status: 'not_started' | 'in_progress' | 'completed'
+  statusDisplay: string
+
+  // Progress percentages
+  overallProgress: number
+  registrationProgress: number
+  assessmentProgress: number
+
+  // Step tracking
+  completedStepsCount: number
+  totalSteps: number
+  currentStep: string | null
+  nextStep: {
+    step: string
+    title: string
+    url: string
+  }
+
+  // Breakdown (new field)
+  breakdown?: {
+    registration: number
+    assessment: number
+    total_steps: number
+    completed_steps: number
+  }
+
+  // Profile completeness
+  profileCompletenessScore: number
+  isComplete: boolean
+
+  // Individual step statuses (backward compatible)
+  accountCreated: boolean
+  personalInfoCompleted: boolean
+  locationPreferencesCompleted: boolean
+  lifestylePreferencesCompleted: boolean
+  assessmentStarted: boolean
+  assessmentCompleted: boolean
+
+  // Timestamps (updated field names)
+  createdAt: string
+  updatedAt: string
+  completedAt?: string | null
 }

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 class User(AbstractUser):
     ROLE_CHOICES = [
@@ -117,3 +118,164 @@ class User(AbstractUser):
         db_table = 'auth_user'
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+
+
+class OnboardingProgress(models.Model):
+    """Track user onboarding progress through registration and assessment"""
+
+    STEP_ACCOUNT = 'account_created'
+    STEP_PERSONAL = 'personal_info'
+    STEP_LOCATION = 'location_preferences'
+    STEP_LIFESTYLE = 'lifestyle_preferences'
+    STEP_ASSESSMENT_START = 'assessment_started'
+    STEP_ASSESSMENT_DONE = 'assessment_completed'
+
+    ONBOARDING_STEPS = [
+        STEP_ACCOUNT,
+        STEP_PERSONAL,
+        STEP_LOCATION,
+        STEP_LIFESTYLE,
+        STEP_ASSESSMENT_START,
+        STEP_ASSESSMENT_DONE,
+    ]
+
+    STATUS_NOT_STARTED = 'not_started'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_COMPLETED = 'completed'
+
+    STATUS_CHOICES = [
+        (STATUS_NOT_STARTED, 'Not Started'),
+        (STATUS_IN_PROGRESS, 'In Progress'),
+        (STATUS_COMPLETED, 'Completed'),
+    ]
+
+    # Core fields
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='onboarding_progress')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_NOT_STARTED)
+
+    # Store completion status in JSON for flexibility
+    completed_steps = models.JSONField(default=dict, help_text="Dictionary of completed steps")
+
+    # Progress metrics (calculated dynamically)
+    progress_percentage = models.IntegerField(default=0, help_text="Overall progress 0-100")
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Onboarding Progress'
+        verbose_name_plural = 'Onboarding Progress Records'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_status_display()} ({self.progress_percentage}%)"
+
+    def _ensure_steps_dict(self):
+        """Ensure completed_steps is properly initialized"""
+        if not isinstance(self.completed_steps, dict):
+            self.completed_steps = {}
+        for step in self.ONBOARDING_STEPS:
+            if step not in self.completed_steps:
+                self.completed_steps[step] = False
+
+    def mark_step_complete(self, step):
+        """Mark a specific step as complete"""
+        if step not in self.ONBOARDING_STEPS:
+            raise ValueError(f"Invalid step: {step}")
+
+        self._ensure_steps_dict()
+        self.completed_steps[step] = True
+        self._recalculate()
+        self.save()
+
+    def is_step_complete(self, step):
+        """Check if a specific step is complete"""
+        self._ensure_steps_dict()
+        return self.completed_steps.get(step, False)
+
+    def _recalculate(self):
+        """Recalculate progress and status"""
+        self._ensure_steps_dict()
+
+        # Count completed steps
+        completed_count = sum(1 for completed in self.completed_steps.values() if completed)
+        total_steps = len(self.ONBOARDING_STEPS)
+
+        # Calculate percentage
+        self.progress_percentage = int((completed_count / total_steps) * 100)
+
+        # Update status
+        if self.progress_percentage == 100:
+            self.status = self.STATUS_COMPLETED
+            if not self.completed_at:
+                self.completed_at = timezone.now()
+        elif self.progress_percentage > 0:
+            self.status = self.STATUS_IN_PROGRESS
+        else:
+            self.status = self.STATUS_NOT_STARTED
+
+    def get_current_step(self):
+        """Get the current/next incomplete step"""
+        self._ensure_steps_dict()
+        for step in self.ONBOARDING_STEPS:
+            if not self.completed_steps.get(step, False):
+                return step
+        return None
+
+    def get_next_step_info(self):
+        """Get information about the next step"""
+        step_info = {
+            self.STEP_ACCOUNT: {'title': 'Create Account', 'url': '/register'},
+            self.STEP_PERSONAL: {'title': 'Personal Information', 'url': '/register'},
+            self.STEP_LOCATION: {'title': 'Location & Budget', 'url': '/register'},
+            self.STEP_LIFESTYLE: {'title': 'Lifestyle Preferences', 'url': '/register'},
+            self.STEP_ASSESSMENT_START: {'title': 'Start Assessment', 'url': '/personality/assessment'},
+            self.STEP_ASSESSMENT_DONE: {'title': 'Complete Assessment', 'url': '/personality/assessment'},
+        }
+
+        current_step = self.get_current_step()
+        if current_step:
+            info = step_info[current_step]
+            info['step'] = current_step
+            return info
+        return {'step': 'completed', 'title': 'Onboarding Complete', 'url': '/dashboard'}
+
+    def get_progress_breakdown(self):
+        """Get detailed progress breakdown"""
+        self._ensure_steps_dict()
+
+        # Registration steps (first 4)
+        registration_steps = self.ONBOARDING_STEPS[:4]
+        registration_completed = sum(1 for s in registration_steps if self.completed_steps.get(s, False))
+        registration_progress = int((registration_completed / len(registration_steps)) * 100)
+
+        # Assessment steps (last 2)
+        assessment_steps = self.ONBOARDING_STEPS[4:]
+        assessment_completed = sum(1 for s in assessment_steps if self.completed_steps.get(s, False))
+        assessment_progress = int((assessment_completed / len(assessment_steps)) * 100)
+
+        return {
+            'registration': registration_progress,
+            'assessment': assessment_progress,
+            'total_steps': len(self.ONBOARDING_STEPS),
+            'completed_steps': sum(1 for completed in self.completed_steps.values() if completed),
+        }
+
+    def get_profile_completeness(self):
+        """Calculate profile completeness score"""
+        user = self.user
+        fields = [
+            user.first_name, user.last_name, user.date_of_birth, user.gender,
+            user.phone_number, user.occupation, user.education, user.current_city,
+            user.preferred_city, user.budget_min, user.budget_max, user.move_in_date,
+            user.lease_duration, user.bio, user.interests
+        ]
+        filled = sum(1 for field in fields if field)
+        return int((filled / len(fields)) * 100)
+
+    @property
+    def is_complete(self):
+        """Check if onboarding is complete"""
+        return self.status == self.STATUS_COMPLETED

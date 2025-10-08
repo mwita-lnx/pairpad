@@ -70,7 +70,7 @@ export default function Home() {
                     Get Started Today
                   </button>
                 </Link>
-                <Link href="/dashboard/personality/assessment">
+                <Link href="/personality/assessment">
                   <button className="bg-transparent border-2 border-[#5d41ab] text-[#5d41ab] px-8 py-4 rounded-full text-lg font-medium hover:bg-[#5d41ab] hover:text-white transition-all hover:scale-105">
                     Take Assessment
                   </button>
@@ -195,7 +195,7 @@ export default function Home() {
             <div>
               <h4 className="font-bold text-[#484848] mb-4">Product</h4>
               <div className="space-y-2">
-                <Link href="/dashboard/personality/assessment" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Assessment</Link>
+                <Link href="/personality/assessment" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Assessment</Link>
                 <Link href="/dashboard/matches" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Matching</Link>
                 <Link href="/dashboard/coliving" className="block text-[#9ca299] hover:text-[#5d41ab] transition-colors">Co-Living</Link>
               </div>

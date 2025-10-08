@@ -12,4 +12,8 @@ urlpatterns = [
 
     # User profile endpoints
     path('profile/', views.UserProfileView.as_view(), name='user_profile'),
+
+    # Onboarding progress endpoints
+    path('onboarding/progress/', views.get_onboarding_progress, name='get_onboarding_progress'),
+    path('onboarding/progress/update/', views.update_onboarding_progress, name='update_onboarding_progress'),
 ]
