@@ -1,6 +1,29 @@
 from rest_framework import serializers
 from .models import PersonalityProfile, AssessmentQuestion, AssessmentResponse
 
+
+class CleanlinessField(serializers.Field):
+    """Custom field that accepts both string choices and integer values for cleanliness level"""
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            cleanliness_map = {
+                'very_messy': 25,
+                'somewhat_messy': 40,
+                'moderately_tidy': 60,
+                'very_tidy': 85
+            }
+            return cleanliness_map.get(data, 50)
+        elif isinstance(data, int):
+            return max(0, min(100, data))  # Clamp to 0-100
+        elif data is None:
+            return 50
+        else:
+            raise serializers.ValidationError("Invalid cleanliness level value")
+
+    def to_representation(self, value):
+        return value
+
 class PersonalityProfileSerializer(serializers.ModelSerializer):
     lifestylePreferences = serializers.SerializerMethodField()
     communicationStyle = serializers.CharField(source='communication_style', read_only=True)
@@ -57,7 +80,7 @@ class PersonalityAssessmentSubmissionSerializer(serializers.Serializer):
     neuroticism = serializers.IntegerField(required=False, min_value=0, max_value=100)
 
     # Lifestyle preferences
-    cleanliness_level = serializers.IntegerField(required=False, min_value=0, max_value=100)
+    cleanliness_level = CleanlinessField(required=False)
     social_level = serializers.IntegerField(required=False, min_value=0, max_value=100)
     quiet_hours = serializers.BooleanField(required=False)
     pets_allowed = serializers.BooleanField(required=False)
@@ -90,6 +113,9 @@ class PersonalityAssessmentSubmissionSerializer(serializers.Serializer):
         communication_style = validated_data.get('communication_style', 'diplomatic')
         lifestyle_data = validated_data.get('lifestyle_data', {})
 
+        # Get cleanliness level (already converted by CleanlinessField)
+        cleanliness_value = validated_data.get('cleanliness_level', lifestyle_prefs.get('cleanliness', 50))
+
         # Calculate personality scores - use direct scores if provided, otherwise calculate from responses
         if any(k in validated_data for k in ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism']):
             trait_scores = {
@@ -107,7 +133,7 @@ class PersonalityAssessmentSubmissionSerializer(serializers.Serializer):
             user=user,
             defaults={
                 **trait_scores,
-                'cleanliness_level': validated_data.get('cleanliness_level', lifestyle_prefs.get('cleanliness', 50)),
+                'cleanliness_level': cleanliness_value,
                 'social_level': validated_data.get('social_level', lifestyle_prefs.get('socialLevel', 50)),
                 'quiet_hours': validated_data.get('quiet_hours', lifestyle_prefs.get('quietHours', False)),
                 'pets_allowed': validated_data.get('pets_allowed', lifestyle_prefs.get('pets', False)),
@@ -122,7 +148,7 @@ class PersonalityAssessmentSubmissionSerializer(serializers.Serializer):
             for field, value in trait_scores.items():
                 setattr(profile, field, value)
 
-            profile.cleanliness_level = validated_data.get('cleanliness_level', lifestyle_prefs.get('cleanliness', profile.cleanliness_level))
+            profile.cleanliness_level = cleanliness_value
             profile.social_level = validated_data.get('social_level', lifestyle_prefs.get('socialLevel', profile.social_level))
             profile.quiet_hours = validated_data.get('quiet_hours', lifestyle_prefs.get('quietHours', profile.quiet_hours))
             profile.pets_allowed = validated_data.get('pets_allowed', lifestyle_prefs.get('pets', profile.pets_allowed))
