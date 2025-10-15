@@ -32,14 +32,6 @@ export default function RegisterPage() {
     moveInDate: '',
     leaseDuration: '',
 
-    // Basic Lifestyle Preferences
-    smokingPreference: 'no_preference',
-    petsPreference: 'no_preference',
-    guestsPreference: 'occasionally',
-    cleanlinessLevel: '50',
-    socialLevel: '50',
-    quietHours: false,
-
     // Additional Info
     bio: '',
     occupation: '',
@@ -72,8 +64,8 @@ export default function RegisterPage() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Prevent Enter key from submitting form on steps 1-3
-    if (e.key === 'Enter' && currentStep !== 4) {
+    // Prevent Enter key from submitting form on steps 1-2
+    if (e.key === 'Enter' && currentStep !== 3) {
       e.preventDefault()
       console.log('Enter pressed on step', currentStep, '- preventing submission')
       handleNext()
@@ -141,7 +133,7 @@ export default function RegisterPage() {
     console.log('Form submitted, current step:', currentStep)
 
     // Prevent submission if not on the final step
-    if (currentStep !== 4) {
+    if (currentStep !== 3) {
       console.log('Not on final step, preventing submission!')
       // Don't call handleNext here, just prevent submission
       return
@@ -152,8 +144,7 @@ export default function RegisterPage() {
     const allErrors = {
       ...validateStep(1),
       ...validateStep(2),
-      ...validateStep(3),
-      ...validateStep(4)
+      ...validateStep(3)
     }
 
     console.log('Validation errors:', allErrors)
@@ -185,12 +176,6 @@ export default function RegisterPage() {
         budget_max: parseInt(formData.budgetMax),
         move_in_date: formData.moveInDate,
         lease_duration: formData.leaseDuration,
-        smoking_preference: formData.smokingPreference,
-        pets_preference: formData.petsPreference,
-        guests_preference: formData.guestsPreference,
-        cleanliness_level: parseInt(formData.cleanlinessLevel),
-        social_level: parseInt(formData.socialLevel),
-        quiet_hours: formData.quietHours,
         bio: formData.bio,
         occupation: formData.occupation,
         education: formData.education,
@@ -245,7 +230,7 @@ export default function RegisterPage() {
   const renderStepIndicator = () => (
     <div className="flex justify-center mb-8">
       <div className="flex items-center space-x-4">
-        {[1, 2, 3, 4].map((step) => (
+        {[1, 2, 3].map((step) => (
           <div key={step} className="flex items-center">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
               step === currentStep
@@ -256,7 +241,7 @@ export default function RegisterPage() {
             }`}>
               {step < currentStep ? '✓' : step}
             </div>
-            {step < 4 && (
+            {step < 3 && (
               <div className={`w-12 h-1 mx-2 ${
                 step < currentStep ? 'bg-green-500' : 'bg-gray-200'
               }`} />
@@ -549,136 +534,6 @@ export default function RegisterPage() {
     </div>
   )
 
-  const renderStep4 = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-[#484848] mb-2">Lifestyle Preferences</h2>
-        <p className="text-gray-600">Help us find your perfect match</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-[#484848] mb-2">Smoking Preference</label>
-          <select
-            name="smokingPreference"
-            value={formData.smokingPreference}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
-          >
-            <option value="no_preference">No Preference</option>
-            <option value="smoker">I smoke</option>
-            <option value="non_smoker">Non-smoker only</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#484848] mb-2">Pets Preference</label>
-          <select
-            name="petsPreference"
-            value={formData.petsPreference}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
-          >
-            <option value="no_preference">No Preference</option>
-            <option value="has_pets">I have pets</option>
-            <option value="no_pets">No pets</option>
-            <option value="loves_pets">Love pets but don't have any</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-[#484848] mb-2">Guest Policy</label>
-        <select
-          name="guestsPreference"
-          value={formData.guestsPreference}
-          onChange={handleChange}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
-        >
-          <option value="rarely">Rarely have guests</option>
-          <option value="occasionally">Occasionally have guests</option>
-          <option value="frequently">Frequently have guests</option>
-          <option value="no_guests">No overnight guests</option>
-        </select>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-[#484848] mb-2">
-            Cleanliness Level: {formData.cleanlinessLevel}%
-          </label>
-          <input
-            type="range"
-            name="cleanlinessLevel"
-            min="0"
-            max="100"
-            value={formData.cleanlinessLevel}
-            onChange={handleChange}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Messy</span>
-            <span>Very Clean</span>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#484848] mb-2">
-            Social Level: {formData.socialLevel}%
-          </label>
-          <input
-            type="range"
-            name="socialLevel"
-            min="0"
-            max="100"
-            value={formData.socialLevel}
-            onChange={handleChange}
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Prefer Privacy</span>
-            <span>Love Socializing</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          name="quietHours"
-          checked={formData.quietHours}
-          onChange={handleChange}
-          className="mr-3 h-4 w-4 text-[#5d41ab] focus:ring-[#5d41ab] border-gray-300 rounded"
-        />
-        <label className="text-[#484848]">I prefer quiet hours (10 PM - 8 AM)</label>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-[#484848] mb-2">Interests & Hobbies</label>
-        <textarea
-          name="interests"
-          value={formData.interests}
-          onChange={handleChange}
-          placeholder="Tell us about your interests, hobbies, and what you like to do in your free time..."
-          rows={3}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-[#484848] mb-2">About Me</label>
-        <textarea
-          name="bio"
-          value={formData.bio}
-          onChange={handleChange}
-          placeholder="Tell potential roommates about yourself, your lifestyle, and what you're looking for in a living situation..."
-          rows={4}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-[#484848] placeholder-[#9ca299] focus:outline-none focus:ring-2 focus:ring-[#5d41ab] focus:border-transparent transition-all"
-        />
-      </div>
-    </div>
-  )
-
   return (
     <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif]">
       {/* Navigation */}
@@ -721,7 +576,6 @@ export default function RegisterPage() {
               {currentStep === 1 && renderStep1()}
               {currentStep === 2 && renderStep2()}
               {currentStep === 3 && renderStep3()}
-              {currentStep === 4 && renderStep4()}
 
               {errors.general && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-6">
@@ -740,7 +594,7 @@ export default function RegisterPage() {
                   Previous
                 </button>
 
-                {currentStep < 4 ? (
+                {currentStep < 3 ? (
                   <button
                     type="button"
                     onClick={(e) => {

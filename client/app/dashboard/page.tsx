@@ -4,15 +4,13 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { OnboardingProgressWidget } from '@/components/ui/onboarding-progress'
-import { useAuthStore, useMatchStore, useOnboardingStore } from '@/lib/store'
+import { useAuthStore, useMatchStore } from '@/lib/store'
 import { matching } from '@/lib/api'
 import { calculateCompatibilityScore, User } from '@/lib/utils'
 
 export default function Dashboard() {
   const { user } = useAuthStore()
   const { suggestedMatches, setSuggestedMatches } = useMatchStore()
-  const { onboardingProgress } = useOnboardingStore()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -147,7 +145,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
-                  <Link href={`/dashboard/matches/${match.id}`}>
+                  <Link href={`/profile/${match.id}`}>
                     <button className="bg-[#5d41ab] text-white px-6 py-2 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
                       View Profile
                     </button>
@@ -194,6 +192,13 @@ export default function Dashboard() {
             Edit Profile
           </button>
         </Link>
+        {user && (
+          <Link href={`/profile/${user.id}`} className="block">
+            <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
+              View My Public Profile
+            </button>
+          </Link>
+        )}
         <Link href="/personality/assessment" className="block">
           <button className="w-full bg-gray-50 border border-gray-200 text-[#484848] py-4 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
             Retake Assessment
@@ -260,21 +265,11 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            {/* Onboarding Progress - Show if not complete */}
-            {onboardingProgress && !onboardingProgress.isComplete && (
-              <OnboardingProgressWidget showDetails={true} />
-            )}
-
             {renderPersonalityStats()}
             {renderRecentMatches()}
           </div>
 
           <div className="space-y-8">
-            {/* Compact progress for sidebar - always show */}
-            {onboardingProgress && (
-              <OnboardingProgressWidget compact={true} />
-            )}
-
             {renderQuickActions()}
             {renderAccountStatus()}
           </div>

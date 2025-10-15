@@ -58,6 +58,11 @@ export const auth = {
     return response.data
   },
 
+  getPublicProfile: async (userId: string): Promise<User> => {
+    const response = await api.get(`/auth/users/${userId}/`)
+    return response.data
+  },
+
   // Onboarding progress functions
   getOnboardingProgress: async (): Promise<OnboardingProgress> => {
     const response = await api.get('/auth/onboarding/progress/')

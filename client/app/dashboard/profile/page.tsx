@@ -485,10 +485,19 @@ export default function ProfilePage() {
       <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/dashboard" className="inline-flex items-center text-[#5d41ab] hover:text-[#4c2d87] mb-4">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Dashboard
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/dashboard" className="inline-flex items-center text-[#5d41ab] hover:text-[#4c2d87]">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back to Dashboard
+            </Link>
+            {user && (
+              <Link href={`/profile/${user.id}`}>
+                <button className="bg-white border-2 border-[#5d41ab] text-[#5d41ab] px-6 py-2 rounded-xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
+                  View Public Profile
+                </button>
+              </Link>
+            )}
+          </div>
           <h1 className="text-4xl font-bold text-[#484848] mb-2">Edit Profile</h1>
           <p className="text-gray-600">Update your information to improve your roommate matches</p>
         </div>

@@ -82,10 +82,13 @@ const assessmentSections = [
       {
         id: 'tidiness_level',
         question: 'How tidy do you usually keep your room/common spaces?',
-        type: 'scale',
-        min: 0,
-        max: 100,
-        labels: { 0: 'Messy', 100: 'Very Tidy' }
+        type: 'choice',
+        options: [
+          { value: 'very_messy', label: 'Very messy - Things pile up quickly' },
+          { value: 'somewhat_messy', label: 'Somewhat messy - Organized chaos' },
+          { value: 'moderately_tidy', label: 'Moderately tidy - Clean most of the time' },
+          { value: 'very_tidy', label: 'Very tidy - Everything has its place' },
+        ]
       },
       {
         id: 'chore_frequency',

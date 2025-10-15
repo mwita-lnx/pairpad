@@ -296,7 +296,7 @@ export default function MatchesPage() {
                     >
                       👎 Pass
                     </button>
-                    <Link href={`/dashboard/matches/${matchUser.id}`} className="flex-1">
+                    <Link href={`/profile/${matchUser.id}`} className="flex-1">
                       <button className="w-full border-2 border-[#5d41ab] text-[#5d41ab] py-3 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all">
                         View Profile
                       </button>
