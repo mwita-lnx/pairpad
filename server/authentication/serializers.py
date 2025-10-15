@@ -17,6 +17,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'}
     )
 
+    # Make lifestyle fields optional since they're set in personality assessment
+    smoking_preference = serializers.CharField(required=False)
+    pets_preference = serializers.CharField(required=False)
+    guests_preference = serializers.CharField(required=False)
+    cleanliness_level = serializers.IntegerField(required=False)
+    social_level = serializers.IntegerField(required=False)
+    quiet_hours = serializers.BooleanField(required=False)
+
     class Meta:
         model = User
         fields = (
