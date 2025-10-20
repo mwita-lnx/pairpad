@@ -58,6 +58,15 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
+class PublicUserProfileView(generics.RetrieveAPIView):
+    """
+    Public user profile view - allows anyone to view a user's profile
+    """
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = User.objects.all()
+    lookup_field = 'pk'
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def logout_view(request):

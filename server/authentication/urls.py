@@ -12,6 +12,7 @@ urlpatterns = [
 
     # User profile endpoints
     path('profile/', views.UserProfileView.as_view(), name='user_profile'),
+    path('users/<int:pk>/', views.PublicUserProfileView.as_view(), name='public_user_profile'),
 
     # Onboarding progress endpoints
     path('onboarding/progress/', views.get_onboarding_progress, name='get_onboarding_progress'),
