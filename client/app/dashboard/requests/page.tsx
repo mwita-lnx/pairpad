@@ -9,7 +9,11 @@ import { Heart, X, MapPin, Calendar } from 'lucide-react'
 interface MatchRequest {
   id: string
   requestingUser: any
-  compatibilityScore: number
+  compatibilityScore: number | {
+    compatibility_score: number
+    similarity_score: number
+    breakdown: any
+  }
   createdAt: string
 }
 
@@ -21,6 +25,13 @@ export default function MatchRequestsPage() {
   useEffect(() => {
     loadMatchRequests()
   }, [])
+
+  const getCompatibilityScore = (score: number | { compatibility_score: number; similarity_score: number; breakdown: any }): number => {
+    if (typeof score === 'number') {
+      return score
+    }
+    return score.compatibility_score || 0
+  }
 
   const loadMatchRequests = async () => {
     try {
@@ -128,7 +139,7 @@ export default function MatchRequestsPage() {
                               {user.username || user.first_name || 'Unknown User'}
                             </h3>
                             <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
-                              {request.compatibilityScore}% compatible
+                              {Math.round(getCompatibilityScore(request.compatibilityScore))}% compatible
                             </span>
                           </div>
 
