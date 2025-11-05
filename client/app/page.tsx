@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Icons as SVG components
 const BrainIcon = () => (
@@ -109,6 +110,108 @@ export default function Home() {
                   </div>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full w-4/5 bg-gradient-to-r from-[#5d41ab] to-[#4c2d87] rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mission Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold text-[#484848] mb-6">
+              Start with a <span className="text-[#5d41ab]">mission.</span>
+              <br />
+              End with a <span className="text-[#5d41ab]">match.</span>
+            </h2>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Mission Image */}
+            <div className="relative mx-auto w-full max-w-lg">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <Image
+                  src="/5884069.jpg"
+                  alt="Find your perfect roommate"
+                  width={800}
+                  height={800}
+                  className="w-full h-auto object-cover"
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Mission Cards */}
+            <div className="space-y-6">
+              {/* Mission 1 */}
+              <div className="bg-gradient-to-br from-purple-50 to-white rounded-3xl shadow-lg p-8 border border-purple-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="flex items-start gap-6">
+                  <div className="flex-shrink-0 w-20 h-20 bg-white border-2 border-[#5d41ab] rounded-2xl flex items-center justify-center">
+                    <svg className="w-12 h-12 text-[#5d41ab]" viewBox="0 0 100 100" fill="none">
+                      {/* Happy document character */}
+                      <rect x="30" y="20" width="40" height="50" rx="4" stroke="currentColor" strokeWidth="2" fill="white"/>
+                      <circle cx="42" cy="35" r="3" fill="currentColor"/>
+                      <circle cx="58" cy="35" r="3" fill="currentColor"/>
+                      <path d="M 42 48 Q 50 52 58 48" stroke="currentColor" strokeWidth="2" fill="none"/>
+                      <line x1="40" y1="25" x2="60" y2="25" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M 70 50 L 75 45 L 80 50" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-[#484848] mb-2">Find a place</h3>
+                    <p className="text-[#484848] leading-relaxed">
+                      Browse listings or meet people also searching
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mission 2 */}
+              <div className="bg-gradient-to-br from-purple-50 to-white rounded-3xl shadow-lg p-8 border border-purple-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="flex items-start gap-6">
+                  <div className="flex-shrink-0 w-20 h-20 bg-white border-2 border-[#5d41ab] rounded-2xl flex items-center justify-center">
+                    <svg className="w-12 h-12 text-[#5d41ab]" viewBox="0 0 100 100" fill="none">
+                      {/* Happy house character with "Room Available" sign */}
+                      <path d="M 50 25 L 70 40 L 70 65 L 30 65 L 30 40 Z" stroke="currentColor" strokeWidth="2" fill="white"/>
+                      <rect x="42" y="48" width="16" height="17" stroke="currentColor" strokeWidth="2" fill="white"/>
+                      <circle cx="42" cy="42" r="2" fill="currentColor"/>
+                      <circle cx="58" cy="42" r="2" fill="currentColor"/>
+                      <path d="M 42 50 Q 50 54 58 50" stroke="currentColor" strokeWidth="2" fill="none"/>
+                      <path d="M 72 35 L 78 30 L 78 42 L 72 42 Z" fill="#fff" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-[#484848] mb-2">Fill your space</h3>
+                    <p className="text-[#484848] leading-relaxed">
+                      Search for people to live at your place
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mission 3 */}
+              <div className="bg-gradient-to-br from-purple-50 to-white rounded-3xl shadow-lg p-8 border border-purple-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                <div className="flex items-start gap-6">
+                  <div className="flex-shrink-0 w-20 h-20 bg-white border-2 border-[#5d41ab] rounded-2xl flex items-center justify-center">
+                    <svg className="w-12 h-12 text-[#5d41ab]" viewBox="0 0 100 100" fill="none">
+                      {/* Happy campus building character */}
+                      <rect x="35" y="30" width="30" height="45" rx="2" stroke="currentColor" strokeWidth="2" fill="white"/>
+                      <rect x="42" y="38" width="6" height="6" fill="currentColor"/>
+                      <rect x="52" y="38" width="6" height="6" fill="currentColor"/>
+                      <path d="M 42 52 Q 50 56 58 52" stroke="currentColor" strokeWidth="2" fill="none"/>
+                      <path d="M 50 30 L 35 30" stroke="currentColor" strokeWidth="2"/>
+                      <circle cx="28" cy="45" r="8" stroke="currentColor" strokeWidth="2" fill="white"/>
+                      <circle cx="72" cy="45" r="8" stroke="currentColor" strokeWidth="2" fill="white"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-[#484848] mb-2">Living on campus</h3>
+                    <p className="text-[#484848] leading-relaxed">
+                      Look for roommates on campus
+                    </p>
                   </div>
                 </div>
               </div>
