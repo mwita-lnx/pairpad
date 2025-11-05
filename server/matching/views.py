@@ -171,13 +171,22 @@ def get_match_requests(request):
     request_data = []
     for interaction in pending_requests:
         requesting_user = interaction.user
-        compatibility = calculate_compatibility(user, requesting_user)
+        compatibility_data = calculate_compatibility(user, requesting_user)
         user_data = UserSerializer(requesting_user).data
+
+        # Handle both old (int) and new (dict) return formats
+        if isinstance(compatibility_data, dict):
+            user_data['compatibility_score'] = compatibility_data['compatibility_score']
+            user_data['similarity_score'] = compatibility_data['similarity_score']
+            user_data['score_breakdown'] = compatibility_data['breakdown']
+            compat_score = compatibility_data['compatibility_score']
+        else:
+            compat_score = compatibility_data
 
         request_data.append({
             'id': str(interaction.id),
             'requestingUser': user_data,
-            'compatibilityScore': compatibility,
+            'compatibilityScore': compat_score,
             'createdAt': interaction.created_at.isoformat(),
         })
 
@@ -217,21 +226,29 @@ def respond_to_match_request(request):
         )
 
         # Create match since both users liked each other
-        compatibility = calculate_compatibility(request.user, requester_user)
+        compatibility_data = calculate_compatibility(request.user, requester_user)
+        compat_score = compatibility_data['compatibility_score'] if isinstance(compatibility_data, dict) else compatibility_data
+
         match, created = Match.objects.get_or_create(
             user1=min(request.user, requester_user, key=lambda x: x.id),
             user2=max(request.user, requester_user, key=lambda x: x.id),
             defaults={
-                'compatibility_score': compatibility,
+                'compatibility_score': compat_score,
                 'status': 'mutual'
             }
         )
 
-        return Response({
+        response_data = {
             'message': 'Match request accepted!',
             'match_id': match.id,
-            'compatibility_score': compatibility
-        })
+            'compatibility_score': compat_score
+        }
+
+        if isinstance(compatibility_data, dict):
+            response_data['similarity_score'] = compatibility_data['similarity_score']
+            response_data['score_breakdown'] = compatibility_data['breakdown']
+
+        return Response(response_data)
 
     else:  # decline
         # Create interaction for declining
@@ -249,8 +266,13 @@ def get_compatibility(request, user_id):
     """Get compatibility score with specific user"""
     try:
         target_user = User.objects.get(id=user_id)
-        compatibility = calculate_compatibility(request.user, target_user)
-        return Response({'compatibility_score': compatibility})
+        compatibility_data = calculate_compatibility(request.user, target_user)
+
+        # Handle both old (int) and new (dict) return formats
+        if isinstance(compatibility_data, dict):
+            return Response(compatibility_data)
+        else:
+            return Response({'compatibility_score': compatibility_data})
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 

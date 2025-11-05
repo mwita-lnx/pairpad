@@ -3,11 +3,9 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore, useMatchStore } from '@/lib/store'
 import { matching } from '@/lib/api'
-import { calculateCompatibilityScore, User } from '@/lib/utils'
+import { User } from '@/lib/utils'
 
 export default function MatchesPage() {
   const { user, checkAuth } = useAuthStore()
@@ -89,102 +87,46 @@ export default function MatchesPage() {
     }
   }
 
-  const renderCompatibilityBreakdown = (matchUser: User) => {
-    if (!user?.personalityProfile || !matchUser.personalityProfile) {
-      return null
-    }
+  const renderScoreBreakdown = (scoreBreakdown: any) => {
+    if (!scoreBreakdown) return null
 
-    const userProfile = user.personalityProfile
-    const matchProfile = matchUser.personalityProfile
-
-    const traits = [
-      { name: 'Openness', user: userProfile.openness, match: matchProfile.openness },
-      { name: 'Conscientiousness', user: userProfile.conscientiousness, match: matchProfile.conscientiousness },
-      { name: 'Extraversion', user: userProfile.extraversion, match: matchProfile.extraversion },
-      { name: 'Agreeableness', user: userProfile.agreeableness, match: matchProfile.agreeableness },
-      { name: 'Neuroticism', user: userProfile.neuroticism, match: matchProfile.neuroticism },
+    const categories = [
+      { name: 'Lifestyle Match', value: scoreBreakdown.lifestyle, icon: '🏠' },
+      { name: 'Basic Preferences', value: scoreBreakdown.basic_lifestyle, icon: '⭐' },
+      { name: 'Personality Fit', value: scoreBreakdown.personality, icon: '🧠' },
+      { name: 'Communication', value: scoreBreakdown.communication, icon: '💬' },
+      { name: 'Location', value: scoreBreakdown.location, icon: '📍' },
     ]
 
     return (
       <div className="space-y-3">
-        <h4 className="font-bold text-[#484848]">Personality Compatibility</h4>
-        {traits.map((trait) => {
-          const difference = Math.abs(trait.user - trait.match)
-          const compatibility = Math.max(0, 100 - (difference * 2))
-
-          return (
-            <div key={trait.name} className="space-y-1">
-              <div className="flex justify-between text-sm font-medium">
-                <span className="text-[#484848]">{trait.name}</span>
-                <span className="text-[#5d41ab]">{Math.round(compatibility)}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="h-2 rounded-full bg-[#5d41ab]"
-                  style={{ width: `${compatibility}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>You: {trait.user}%</span>
-                <span>Them: {trait.match}%</span>
-              </div>
+        <h4 className="font-bold text-[#484848] mb-4">Compatibility Breakdown</h4>
+        {categories.map((category) => (
+          <div key={category.name} className="space-y-1">
+            <div className="flex justify-between text-sm font-medium">
+              <span className="text-[#484848]">
+                {category.icon} {category.name}
+              </span>
+              <span className={`font-bold ${
+                category.value >= 80 ? 'text-green-600' :
+                category.value >= 60 ? 'text-orange-500' :
+                'text-[#5d41ab]'
+              }`}>
+                {category.value}%
+              </span>
             </div>
-          )
-        })}
-      </div>
-    )
-  }
-
-  const renderLifestyleCompatibility = (matchUser: User) => {
-    if (!user?.personalityProfile || !matchUser.personalityProfile) {
-      return null
-    }
-
-    const userPrefs = user.personalityProfile.lifestylePreferences
-    const matchPrefs = matchUser.personalityProfile.lifestylePreferences
-
-    const lifestyle = [
-      { name: 'Cleanliness', user: userPrefs.cleanliness, match: matchPrefs.cleanliness, type: 'scale' },
-      { name: 'Social Level', user: userPrefs.socialLevel, match: matchPrefs.socialLevel, type: 'scale' },
-      { name: 'Quiet Hours', user: userPrefs.quietHours, match: matchPrefs.quietHours, type: 'boolean' },
-      { name: 'Pets', user: userPrefs.pets, match: matchPrefs.pets, type: 'boolean' },
-      { name: 'Smoking', user: userPrefs.smoking, match: matchPrefs.smoking, type: 'boolean' },
-    ]
-
-    return (
-      <div className="space-y-3">
-        <h4 className="font-bold text-[#484848]">Lifestyle Compatibility</h4>
-        {lifestyle.map((item) => {
-          if (item.type === 'boolean') {
-            const match = item.user === item.match
-            return (
-              <div key={item.name} className="flex justify-between items-center">
-                <span className="text-sm text-[#484848]">{item.name}</span>
-                <span className={`text-sm font-medium ${match ? 'text-green-600' : 'text-[#5d41ab]'}`}>
-                  {match ? '✓ Compatible' : '✗ Different'}
-                </span>
-              </div>
-            )
-          } else {
-            const difference = Math.abs((item.user as number) - (item.match as number))
-            const compatibility = Math.max(0, 100 - (difference * 2))
-
-            return (
-              <div key={item.name} className="space-y-1">
-                <div className="flex justify-between text-sm font-medium">
-                  <span className="text-[#484848]">{item.name}</span>
-                  <span className="text-[#5d41ab]">{Math.round(compatibility)}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full bg-[#5d41ab]"
-                    style={{ width: `${compatibility}%` }}
-                  />
-                </div>
-              </div>
-            )
-          }
-        })}
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className={`h-2 rounded-full ${
+                  category.value >= 80 ? 'bg-green-600' :
+                  category.value >= 60 ? 'bg-orange-500' :
+                  'bg-[#5d41ab]'
+                }`}
+                style={{ width: `${category.value}%` }}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -245,40 +187,110 @@ export default function MatchesPage() {
         ) : (
           <div className="grid gap-6">
             {suggestedMatches.map((matchUser) => {
-              const compatibilityScore = calculateCompatibilityScore(
-                user.personalityProfile!,
-                matchUser.personalityProfile!
-              )
+              const compatibilityScore = matchUser.compatibility_score || 0
+              const similarityScore = matchUser.similarity_score || compatibilityScore
 
               return (
                 <div key={matchUser.id} className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <h3 className="text-2xl font-bold text-[#484848] flex items-center gap-2">
-                        {matchUser.username}
-                        <span className="text-sm font-normal text-gray-500 capitalize">
-                          • {matchUser.role}
-                        </span>
-                      </h3>
-                      <p className="text-gray-600">
-                        {matchUser.personalityProfile?.communicationStyle} communication style
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-3xl font-bold ${
-                        compatibilityScore >= 80 ? 'text-green-600' :
-                        compatibilityScore >= 60 ? 'text-orange-500' :
-                        'text-[#5d41ab]'
-                      }`}>
-                        {compatibilityScore}%
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 mb-6">
+                    {/* User Info Section */}
+                    <div className="flex-1">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1">
+                          <h3 className="text-2xl font-bold text-[#484848] mb-1">
+                            {matchUser.fullName || matchUser.username}
+                          </h3>
+                          <p className="text-sm text-gray-500 capitalize mb-2">
+                            {matchUser.role} • {matchUser.age ? `${matchUser.age} years old` : ''}
+                          </p>
+                          <p className="text-sm text-[#484848] mb-2">
+                            📍 {matchUser.current_city || 'Location not specified'}
+                          </p>
+                          {matchUser.occupation && (
+                            <p className="text-sm text-gray-600">
+                              💼 {matchUser.occupation}
+                            </p>
+                          )}
+                          {matchUser.education && (
+                            <p className="text-sm text-gray-600">
+                              🎓 {matchUser.education}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500">compatible</div>
-                    </div>
-                  </div>
 
-                  <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    {renderCompatibilityBreakdown(matchUser)}
-                    {renderLifestyleCompatibility(matchUser)}
+                      {matchUser.bio && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-xl">
+                          <p className="text-sm text-[#484848]">{matchUser.bio}</p>
+                        </div>
+                      )}
+
+                      {matchUser.interests && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {matchUser.interests.split(',').map((interest: string, idx: number) => (
+                            <span key={idx} className="text-xs bg-[#5d41ab]/10 text-[#5d41ab] px-3 py-1 rounded-full">
+                              {interest.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Budget & Lease Info */}
+                      <div className="mt-4 grid grid-cols-2 gap-3">
+                        {matchUser.budget_min && matchUser.budget_max && (
+                          <div className="text-sm">
+                            <span className="text-gray-500">Budget:</span>
+                            <span className="ml-1 font-medium text-[#484848]">
+                              ${matchUser.budget_min}-${matchUser.budget_max}
+                            </span>
+                          </div>
+                        )}
+                        {matchUser.lease_duration && (
+                          <div className="text-sm">
+                            <span className="text-gray-500">Lease:</span>
+                            <span className="ml-1 font-medium text-[#484848] capitalize">
+                              {matchUser.lease_duration.replace('_', ' ')}
+                            </span>
+                          </div>
+                        )}
+                        {matchUser.move_in_date && (
+                          <div className="text-sm">
+                            <span className="text-gray-500">Move-in:</span>
+                            <span className="ml-1 font-medium text-[#484848]">
+                              {new Date(matchUser.move_in_date).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+                        {matchUser.personalityProfile?.communicationStyle && (
+                          <div className="text-sm">
+                            <span className="text-gray-500">Style:</span>
+                            <span className="ml-1 font-medium text-[#484848] capitalize">
+                              {matchUser.personalityProfile.communicationStyle}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Score Section */}
+                    <div className="lg:w-80 flex-shrink-0">
+                      <div className="bg-gradient-to-br from-[#5d41ab] to-[#4c2d87] rounded-2xl p-6 text-white mb-4">
+                        <div className="text-center mb-4">
+                          <div className="text-5xl font-bold mb-2">
+                            {compatibilityScore}%
+                          </div>
+                          <div className="text-sm opacity-90">Compatibility Score</div>
+                        </div>
+                        {similarityScore !== compatibilityScore && (
+                          <div className="text-center border-t border-white/20 pt-3">
+                            <div className="text-2xl font-bold">{similarityScore}%</div>
+                            <div className="text-xs opacity-80">Similarity Score</div>
+                          </div>
+                        )}
+                      </div>
+
+                      {matchUser.score_breakdown && renderScoreBreakdown(matchUser.score_breakdown)}
+                    </div>
                   </div>
 
                   <div className="flex gap-3">
