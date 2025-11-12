@@ -276,6 +276,54 @@ def get_compatibility(request, user_id):
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_primary_match(request, match_id):
+    """Set a match as the primary match for the current user"""
+    try:
+        match = Match.objects.get(
+            Q(id=match_id) & (Q(user1=request.user) | Q(user2=request.user)),
+            status='mutual'
+        )
+
+        is_primary = request.data.get('is_primary', True)
+        match.set_primary_for(request.user, is_primary)
+
+        return Response({
+            'message': 'Primary match updated successfully',
+            'match_id': match.id,
+            'is_primary': is_primary
+        })
+    except Match.DoesNotExist:
+        return Response({'error': 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_shared_dashboard_info(request, match_id):
+    """Get shared dashboard information for a specific match"""
+    try:
+        match = Match.objects.get(
+            Q(id=match_id) & (Q(user1=request.user) | Q(user2=request.user)),
+            status='mutual'
+        )
+
+        # Get or create living space
+        living_space = match.get_or_create_living_space()
+
+        other_user = match.other_user(request.user)
+        other_user_data = UserSerializer(other_user).data
+
+        return Response({
+            'match_id': match.id,
+            'living_space_id': living_space.id,
+            'compatibility_score': match.compatibility_score,
+            'is_primary': match.is_primary_for(request.user),
+            'other_user': other_user_data,
+            'created_at': match.created_at.isoformat(),
+        })
+    except Match.DoesNotExist:
+        return Response({'error': 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+
 def calculate_lifestyle_similarity(lifestyle1, lifestyle2):
     """Calculate similarity score based on lifestyle preferences (0-100)"""
     if not lifestyle1 or not lifestyle2:

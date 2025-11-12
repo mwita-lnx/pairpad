@@ -7,13 +7,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Avg
 from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
-    RoomApplication, LivingSpaceReview, HouseRules, Task, Expense
+    RoomApplication, LivingSpaceReview, HouseRules, Task, Expense,
+    ShoppingList, ShoppingListItem, Bill, Notification, CalendarEvent
 )
-from matching.models import MatchInteraction
+from matching.models import MatchInteraction, Match
 from .serializers import (
     LivingSpaceSerializer, LivingSpaceCreateSerializer, RoomSerializer,
     RoomCreateSerializer, RoomApplicationSerializer, LivingSpaceReviewSerializer,
-    LivingSpaceImageSerializer, TaskSerializer, ExpenseSerializer
+    LivingSpaceImageSerializer, TaskSerializer, ExpenseSerializer,
+    ShoppingListSerializer, ShoppingListItemSerializer, BillSerializer,
+    NotificationSerializer, CalendarEventSerializer
 )
 
 class LivingSpaceViewSet(viewsets.ModelViewSet):
@@ -499,3 +502,198 @@ class ExpenseDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         user_spaces = LivingSpace.objects.filter(members=self.request.user)
         return Expense.objects.filter(living_space__in=user_spaces)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_shared_dashboard(request, living_space_id):
+    """Get comprehensive dashboard data for a shared living space"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id, members=request.user)
+
+        # Get tasks
+        tasks = Task.objects.filter(living_space=living_space).order_by('due_date')[:10]
+        tasks_data = TaskSerializer(tasks, many=True).data
+
+        # Get expenses
+        expenses = Expense.objects.filter(living_space=living_space).order_by('-expense_date')[:10]
+        expenses_data = ExpenseSerializer(expenses, many=True).data
+
+        # Get shopping lists
+        shopping_lists = ShoppingList.objects.filter(living_space=living_space)
+        shopping_data = ShoppingListSerializer(shopping_lists, many=True).data
+
+        # Get bills
+        bills = Bill.objects.filter(living_space=living_space, status__in=['pending', 'overdue']).order_by('due_date')
+        bills_data = BillSerializer(bills, many=True).data
+
+        # Get calendar events
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        upcoming_events = CalendarEvent.objects.filter(
+            living_space=living_space,
+            start_datetime__gte=now
+        ).order_by('start_datetime')[:10]
+        events_data = CalendarEventSerializer(upcoming_events, many=True).data
+
+        # Get notifications
+        notifications = Notification.objects.filter(
+            user=request.user,
+            living_space=living_space,
+            is_read=False
+        ).order_by('-created_at')[:5]
+        notifications_data = NotificationSerializer(notifications, many=True).data
+
+        # Get house rules
+        try:
+            house_rules = living_space.house_rules
+            house_rules_data = {
+                'smoking_allowed': house_rules.smoking_allowed,
+                'pets_allowed': house_rules.pets_allowed,
+                'overnight_guests_allowed': house_rules.overnight_guests_allowed,
+                'custom_rules': house_rules.custom_rules,
+            }
+        except HouseRules.DoesNotExist:
+            house_rules_data = None
+
+        return Response({
+            'living_space': {
+                'id': living_space.id,
+                'name': living_space.name,
+                'description': living_space.description,
+            },
+            'tasks': tasks_data,
+            'expenses': expenses_data,
+            'shopping_lists': shopping_data,
+            'bills': bills_data,
+            'calendar_events': events_data,
+            'notifications': notifications_data,
+            'house_rules': house_rules_data,
+        })
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found or access denied'}, status=status.HTTP_404_NOT_FOUND)
+
+# Shopping List Views
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_shopping_list(request, living_space_id):
+    """Create a new shopping list"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id, members=request.user)
+        shopping_list = ShoppingList.objects.create(
+            living_space=living_space,
+            name=request.data.get('name', 'Shopping List'),
+            created_by=request.user
+        )
+        return Response(ShoppingListSerializer(shopping_list).data, status=status.HTTP_201_CREATED)
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_shopping_item(request, shopping_list_id):
+    """Add item to shopping list"""
+    try:
+        shopping_list = ShoppingList.objects.get(id=shopping_list_id, living_space__members=request.user)
+        item = ShoppingListItem.objects.create(
+            shopping_list=shopping_list,
+            name=request.data.get('name'),
+            quantity=request.data.get('quantity', ''),
+            category=request.data.get('category', ''),
+            added_by=request.user
+        )
+        return Response(ShoppingListItemSerializer(item).data, status=status.HTTP_201_CREATED)
+    except ShoppingList.DoesNotExist:
+        return Response({'error': 'Shopping list not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def toggle_shopping_item(request, item_id):
+    """Mark shopping item as purchased/unpurchased"""
+    try:
+        item = ShoppingListItem.objects.get(id=item_id, shopping_list__living_space__members=request.user)
+        item.is_purchased = not item.is_purchased
+        if item.is_purchased:
+            item.purchased_by = request.user
+            item.purchased_at = datetime.now()
+        else:
+            item.purchased_by = None
+            item.purchased_at = None
+        item.save()
+        return Response(ShoppingListItemSerializer(item).data)
+    except ShoppingListItem.DoesNotExist:
+        return Response({'error': 'Shopping item not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# Bill Views
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_bill(request, living_space_id):
+    """Create a new bill"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id, members=request.user)
+        bill = Bill.objects.create(
+            living_space=living_space,
+            title=request.data.get('title'),
+            description=request.data.get('description', ''),
+            amount=request.data.get('amount'),
+            due_date=request.data.get('due_date'),
+            recurrence=request.data.get('recurrence', 'none'),
+            created_by=request.user
+        )
+        return Response(BillSerializer(bill).data, status=status.HTTP_201_CREATED)
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def mark_bill_paid(request, bill_id):
+    """Mark a bill as paid"""
+    try:
+        bill = Bill.objects.get(id=bill_id, living_space__members=request.user)
+        bill.status = 'paid'
+        bill.paid_by = request.user
+        bill.paid_at = datetime.now()
+        bill.save()
+        return Response(BillSerializer(bill).data)
+    except Bill.DoesNotExist:
+        return Response({'error': 'Bill not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# Calendar Event Views
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_calendar_event(request, living_space_id):
+    """Create a new calendar event"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id, members=request.user)
+        event = CalendarEvent.objects.create(
+            living_space=living_space,
+            title=request.data.get('title'),
+            description=request.data.get('description', ''),
+            event_type=request.data.get('event_type', 'other'),
+            start_datetime=request.data.get('start_datetime'),
+            end_datetime=request.data.get('end_datetime'),
+            all_day=request.data.get('all_day', False),
+            created_by=request.user
+        )
+        return Response(CalendarEventSerializer(event).data, status=status.HTTP_201_CREATED)
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# Notification Views
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_notifications(request):
+    """Get user notifications"""
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:20]
+    return Response(NotificationSerializer(notifications, many=True).data)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def mark_notification_read(request, notification_id):
+    """Mark notification as read"""
+    try:
+        notification = Notification.objects.get(id=notification_id, user=request.user)
+        notification.is_read = True
+        notification.save()
+        return Response({'message': 'Notification marked as read'})
+    except Notification.DoesNotExist:
+        return Response({'error': 'Notification not found'}, status=status.HTTP_404_NOT_FOUND)

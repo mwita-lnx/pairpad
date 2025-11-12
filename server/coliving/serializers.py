@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
-    RoomApplication, LivingSpaceReview, HouseRules, Task, Expense
+    RoomApplication, LivingSpaceReview, HouseRules, Task, Expense,
+    ShoppingList, ShoppingListItem, Bill, Notification, CalendarEvent
 )
 from authentication.serializers import UserSerializer
 
@@ -226,3 +227,58 @@ class ExpenseSerializer(serializers.ModelSerializer):
             'expense_date', 'created_at'
         ]
         read_only_fields = ['paid_by']
+
+class ShoppingListItemSerializer(serializers.ModelSerializer):
+    added_by = serializers.StringRelatedField()
+    purchased_by = serializers.StringRelatedField()
+
+    class Meta:
+        model = ShoppingListItem
+        fields = [
+            'id', 'name', 'quantity', 'category', 'is_purchased',
+            'purchased_by', 'purchased_at', 'added_by', 'created_at'
+        ]
+        read_only_fields = ['added_by', 'purchased_by', 'purchased_at']
+
+class ShoppingListSerializer(serializers.ModelSerializer):
+    items = ShoppingListItemSerializer(many=True, read_only=True)
+    created_by = serializers.StringRelatedField()
+
+    class Meta:
+        model = ShoppingList
+        fields = ['id', 'living_space', 'name', 'items', 'created_by', 'created_at']
+        read_only_fields = ['created_by']
+
+class BillSerializer(serializers.ModelSerializer):
+    created_by = serializers.StringRelatedField()
+    paid_by = serializers.StringRelatedField()
+
+    class Meta:
+        model = Bill
+        fields = [
+            'id', 'living_space', 'title', 'description', 'amount',
+            'due_date', 'recurrence', 'status', 'paid_by', 'paid_at',
+            'created_by', 'created_at'
+        ]
+        read_only_fields = ['created_by', 'paid_by', 'paid_at']
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            'id', 'notification_type', 'title', 'message',
+            'is_read', 'created_at', 'task', 'expense', 'bill', 'living_space'
+        ]
+        read_only_fields = ['created_at']
+
+class CalendarEventSerializer(serializers.ModelSerializer):
+    created_by = serializers.StringRelatedField()
+
+    class Meta:
+        model = CalendarEvent
+        fields = [
+            'id', 'living_space', 'title', 'description', 'event_type',
+            'start_datetime', 'end_datetime', 'all_day',
+            'task', 'bill', 'created_by', 'created_at'
+        ]
+        read_only_fields = ['created_by']

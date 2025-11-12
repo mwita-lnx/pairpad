@@ -446,3 +446,146 @@ class LivingSpaceReview(models.Model):
             models.Index(fields=['living_space', 'overall_rating']),
             models.Index(fields=['created_at']),
         ]
+
+class ShoppingList(models.Model):
+    living_space = models.ForeignKey(LivingSpace, on_delete=models.CASCADE, related_name='shopping_lists')
+    name = models.CharField(max_length=200, default="Shopping List")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_shopping_lists')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.living_space.name}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+class ShoppingListItem(models.Model):
+    shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE, related_name='items')
+    name = models.CharField(max_length=200)
+    quantity = models.CharField(max_length=50, blank=True)
+    category = models.CharField(max_length=50, blank=True)
+    is_purchased = models.BooleanField(default=False)
+    purchased_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='purchased_items')
+    purchased_at = models.DateTimeField(null=True, blank=True)
+    added_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='added_shopping_items')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.shopping_list.name}"
+
+    class Meta:
+        ordering = ['is_purchased', 'created_at']
+
+class Bill(models.Model):
+    BILL_STATUS = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('overdue', 'Overdue'),
+    ]
+
+    RECURRENCE_TYPES = [
+        ('none', 'One-time'),
+        ('monthly', 'Monthly'),
+        ('quarterly', 'Quarterly'),
+        ('yearly', 'Yearly'),
+    ]
+
+    living_space = models.ForeignKey(LivingSpace, on_delete=models.CASCADE, related_name='bills')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+
+    due_date = models.DateField()
+    recurrence = models.CharField(max_length=20, choices=RECURRENCE_TYPES, default='none')
+    status = models.CharField(max_length=20, choices=BILL_STATUS, default='pending')
+
+    paid_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='paid_bills')
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_bills')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - ${self.amount} ({self.status})"
+
+    class Meta:
+        ordering = ['due_date', 'created_at']
+        indexes = [
+            models.Index(fields=['living_space', 'status']),
+            models.Index(fields=['due_date']),
+        ]
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('task_assigned', 'Task Assigned'),
+        ('task_completed', 'Task Completed'),
+        ('task_due_soon', 'Task Due Soon'),
+        ('expense_added', 'Expense Added'),
+        ('expense_settled', 'Expense Settled'),
+        ('bill_due_soon', 'Bill Due Soon'),
+        ('shopping_item_added', 'Shopping Item Added'),
+        ('message', 'Message'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+
+    # Related objects (optional)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    expense = models.ForeignKey(Expense, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    bill = models.ForeignKey(Bill, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    living_space = models.ForeignKey(LivingSpace, on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.notification_type} for {self.user.username}"
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'is_read']),
+            models.Index(fields=['created_at']),
+        ]
+
+class CalendarEvent(models.Model):
+    EVENT_TYPES = [
+        ('cleaning', 'Cleaning'),
+        ('maintenance', 'Maintenance'),
+        ('guests', 'Guests'),
+        ('bill_due', 'Bill Due'),
+        ('lease', 'Lease'),
+        ('other', 'Other'),
+    ]
+
+    living_space = models.ForeignKey(LivingSpace, on_delete=models.CASCADE, related_name='calendar_events')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES, default='other')
+
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField(null=True, blank=True)
+    all_day = models.BooleanField(default=False)
+
+    # Related objects
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True, related_name='calendar_events')
+    bill = models.ForeignKey(Bill, on_delete=models.CASCADE, null=True, blank=True, related_name='calendar_events')
+
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.living_space.name}"
+
+    class Meta:
+        ordering = ['start_datetime']
+        indexes = [
+            models.Index(fields=['living_space', 'start_datetime']),
+            models.Index(fields=['event_type']),
+        ]

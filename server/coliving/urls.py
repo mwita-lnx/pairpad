@@ -17,4 +17,23 @@ urlpatterns = [
     path('tasks/<int:pk>/', views.TaskDetailView.as_view(), name='task_detail'),
     path('expenses/', views.ExpenseListCreateView.as_view(), name='expenses'),
     path('expenses/<int:pk>/', views.ExpenseDetailView.as_view(), name='expense_detail'),
+
+    # Shared Dashboard
+    path('shared-dashboard/<int:living_space_id>/', views.get_shared_dashboard, name='shared_dashboard'),
+
+    # Shopping Lists
+    path('<int:living_space_id>/shopping-lists/create/', views.create_shopping_list, name='create_shopping_list'),
+    path('shopping-lists/<int:shopping_list_id>/add-item/', views.add_shopping_item, name='add_shopping_item'),
+    path('shopping-items/<int:item_id>/toggle/', views.toggle_shopping_item, name='toggle_shopping_item'),
+
+    # Bills
+    path('<int:living_space_id>/bills/create/', views.create_bill, name='create_bill'),
+    path('bills/<int:bill_id>/mark-paid/', views.mark_bill_paid, name='mark_bill_paid'),
+
+    # Calendar Events
+    path('<int:living_space_id>/calendar-events/create/', views.create_calendar_event, name='create_calendar_event'),
+
+    # Notifications
+    path('notifications/', views.get_notifications, name='get_notifications'),
+    path('notifications/<int:notification_id>/mark-read/', views.mark_notification_read, name='mark_notification_read'),
 ]

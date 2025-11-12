@@ -18,6 +18,14 @@ class Match(models.Model):
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)]
     )
     status = models.CharField(max_length=20, choices=MATCH_STATUS_CHOICES, default='pending')
+
+    # Primary match flags for each user
+    is_primary_for_user1 = models.BooleanField(default=False, help_text="Is this user1's primary match?")
+    is_primary_for_user2 = models.BooleanField(default=False, help_text="Is this user2's primary match?")
+
+    # Link to shared living space (optional, created when users start living together)
+    living_space = models.ForeignKey('coliving.LivingSpace', on_delete=models.SET_NULL, null=True, blank=True, related_name='match')
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -32,9 +40,56 @@ class Match(models.Model):
     def __str__(self):
         return f"Match between {self.user1.username} and {self.user2.username} ({self.compatibility_score}%)"
 
-    @property
     def other_user(self, current_user):
+        """Get the other user in this match"""
         return self.user2 if self.user1 == current_user else self.user1
+
+    def is_primary_for(self, user):
+        """Check if this match is primary for the given user"""
+        if user == self.user1:
+            return self.is_primary_for_user1
+        elif user == self.user2:
+            return self.is_primary_for_user2
+        return False
+
+    def set_primary_for(self, user, is_primary=True):
+        """Set this match as primary for the given user"""
+        if user == self.user1:
+            if is_primary:
+                # Unset other primary matches for user1
+                Match.objects.filter(user1=user, is_primary_for_user1=True).exclude(id=self.id).update(is_primary_for_user1=False)
+                Match.objects.filter(user2=user, is_primary_for_user2=True).exclude(id=self.id).update(is_primary_for_user2=False)
+            self.is_primary_for_user1 = is_primary
+        elif user == self.user2:
+            if is_primary:
+                # Unset other primary matches for user2
+                Match.objects.filter(user1=user, is_primary_for_user1=True).exclude(id=self.id).update(is_primary_for_user1=False)
+                Match.objects.filter(user2=user, is_primary_for_user2=True).exclude(id=self.id).update(is_primary_for_user2=False)
+            self.is_primary_for_user2 = is_primary
+        self.save()
+
+    def get_or_create_living_space(self):
+        """Get or create a shared living space for this match"""
+        if self.living_space:
+            return self.living_space
+
+        from coliving.models import LivingSpace, LivingSpaceMember
+        # Create a shared living space
+        space_name = f"{self.user1.get_full_name() or self.user1.username} & {self.user2.get_full_name() or self.user2.username}'s Place"
+        living_space = LivingSpace.objects.create(
+            name=space_name,
+            created_by=self.user1,
+            is_public=False
+        )
+
+        # Add both users as members
+        LivingSpaceMember.objects.create(living_space=living_space, user=self.user1, role='admin')
+        LivingSpaceMember.objects.create(living_space=living_space, user=self.user2, role='admin')
+
+        self.living_space = living_space
+        self.save()
+
+        return living_space
 
 class MatchInteraction(models.Model):
     INTERACTION_TYPES = [
