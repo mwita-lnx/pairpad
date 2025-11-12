@@ -36,4 +36,8 @@ urlpatterns = [
     # Notifications
     path('notifications/', views.get_notifications, name='get_notifications'),
     path('notifications/<int:notification_id>/mark-read/', views.mark_notification_read, name='mark_notification_read'),
+
+    # House Rules
+    path('<int:living_space_id>/house-rules/create/', views.create_house_rules, name='create_house_rules'),
+    path('<int:living_space_id>/house-rules/<int:rules_id>/update/', views.update_house_rules, name='update_house_rules'),
 ]

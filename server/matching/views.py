@@ -135,6 +135,9 @@ def get_user_matches(request):
         other_user = match.user2 if match.user1 == user else match.user1
         other_user_data = UserSerializer(other_user).data
 
+        # Determine if this is the primary match for the current user
+        is_primary = match.is_primary_for_user1 if match.user1 == user else match.is_primary_for_user2
+
         match_data.append({
             'id': str(match.id),
             'user1Id': str(match.user1.id),
@@ -142,6 +145,8 @@ def get_user_matches(request):
             'compatibilityScore': match.compatibility_score,
             'status': match.status,
             'createdAt': match.created_at.isoformat(),
+            'isPrimary': is_primary,
+            'livingSpaceId': match.living_space_id,
             'otherUser': other_user_data
         })
 

@@ -121,7 +121,7 @@ class Task(models.Model):
     category = models.CharField(max_length=20, choices=TASK_CATEGORIES, default='other')
 
     # Assignment
-    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_tasks')
+    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_tasks', null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tasks')
 
     # Scheduling
@@ -170,7 +170,7 @@ class Expense(models.Model):
 
     # Amount and payment details
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
-    paid_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='paid_expenses')
+    paid_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='paid_expenses', null=True, blank=True)
 
     # Split configuration
     split_type = models.CharField(max_length=20, choices=SPLIT_TYPES, default='equal')

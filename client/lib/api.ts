@@ -100,7 +100,15 @@ export const matching = {
 
   getMatches: async (): Promise<Match[]> => {
     const response = await api.get('/matching/matches/')
-    return response.data
+    // Normalize camelCase to snake_case for consistency
+    return response.data.map((match: any) => ({
+      ...match,
+      other_user: match.otherUser || match.other_user,
+      compatibility_score: match.compatibilityScore || match.compatibility_score,
+      is_primary: match.isPrimary || match.is_primary,
+      living_space_id: match.livingSpaceId || match.living_space_id,
+      created_at: match.createdAt || match.created_at
+    }))
   },
 
   getMatchRequests: async (): Promise<any[]> => {
@@ -307,6 +315,17 @@ export const sharedDashboard = {
 
   createExpense: async (expense: any): Promise<any> => {
     const response = await api.post('/coliving/expenses/', expense)
+    return response.data
+  },
+
+  // House Rules
+  createHouseRules: async (livingSpaceId: number, rules: any): Promise<any> => {
+    const response = await api.post(`/coliving/${livingSpaceId}/house-rules/create/`, rules)
+    return response.data
+  },
+
+  updateHouseRules: async (livingSpaceId: number, rulesId: number, rules: any): Promise<any> => {
+    const response = await api.patch(`/coliving/${livingSpaceId}/house-rules/${rulesId}/update/`, rules)
     return response.data
   },
 }

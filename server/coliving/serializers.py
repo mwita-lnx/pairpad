@@ -204,29 +204,31 @@ class LivingSpaceReviewSerializer(serializers.ModelSerializer):
         return attrs
 
 class TaskSerializer(serializers.ModelSerializer):
-    assigned_to = serializers.StringRelatedField()
+    assigned_to = serializers.StringRelatedField(required=False, allow_null=True)
+    assigned_to_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
     created_by = serializers.StringRelatedField()
 
     class Meta:
         model = Task
         fields = [
             'id', 'living_space', 'title', 'description', 'category',
-            'assigned_to', 'created_by', 'due_date', 'recurrence',
+            'assigned_to', 'assigned_to_id', 'created_by', 'due_date', 'recurrence',
             'status', 'completed_at', 'created_at'
         ]
         read_only_fields = ['created_by', 'completed_at']
 
 class ExpenseSerializer(serializers.ModelSerializer):
-    paid_by = serializers.StringRelatedField()
+    paid_by = serializers.StringRelatedField(required=False, allow_null=True)
+    paid_by_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
 
     class Meta:
         model = Expense
         fields = [
             'id', 'living_space', 'title', 'description', 'category',
-            'amount', 'paid_by', 'split_type', 'receipt_image',
+            'amount', 'paid_by', 'paid_by_id', 'split_type', 'receipt_image',
             'expense_date', 'created_at'
         ]
-        read_only_fields = ['paid_by']
+        read_only_fields = []
 
 class ShoppingListItemSerializer(serializers.ModelSerializer):
     added_by = serializers.StringRelatedField()

@@ -5,6 +5,8 @@ from rest_framework import generics, status, viewsets, filters
 from rest_framework.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Avg
+from datetime import datetime
+from django.utils import timezone
 from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
     RoomApplication, LivingSpaceReview, HouseRules, Task, Expense,
@@ -479,6 +481,9 @@ class TaskListCreateView(generics.ListCreateAPIView):
         user_spaces = LivingSpace.objects.filter(members=self.request.user)
         return Task.objects.filter(living_space__in=user_spaces)
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
@@ -494,6 +499,13 @@ class ExpenseListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user_spaces = LivingSpace.objects.filter(members=self.request.user)
         return Expense.objects.filter(living_space__in=user_spaces)
+
+    def perform_create(self, serializer):
+        # If paid_by_id is not provided, default to current user
+        if not serializer.validated_data.get('paid_by_id'):
+            serializer.save(paid_by=self.request.user)
+        else:
+            serializer.save()
 
 class ExpenseDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
@@ -528,7 +540,7 @@ def get_shared_dashboard(request, living_space_id):
 
         # Get calendar events
         from datetime import datetime, timedelta
-        now = datetime.now()
+        now = timezone.now()
         upcoming_events = CalendarEvent.objects.filter(
             living_space=living_space,
             start_datetime__gte=now
@@ -547,10 +559,16 @@ def get_shared_dashboard(request, living_space_id):
         try:
             house_rules = living_space.house_rules
             house_rules_data = {
+                'id': house_rules.id,
+                'quiet_hours_start': house_rules.quiet_hours_start,
+                'quiet_hours_end': house_rules.quiet_hours_end,
+                'guests_allowed': house_rules.overnight_guests_allowed,
+                'max_guests': house_rules.max_consecutive_guest_nights,
                 'smoking_allowed': house_rules.smoking_allowed,
                 'pets_allowed': house_rules.pets_allowed,
-                'overnight_guests_allowed': house_rules.overnight_guests_allowed,
                 'custom_rules': house_rules.custom_rules,
+                'created_at': house_rules.created_at,
+                'updated_at': house_rules.updated_at,
             }
         except HouseRules.DoesNotExist:
             house_rules_data = None
@@ -614,7 +632,7 @@ def toggle_shopping_item(request, item_id):
         item.is_purchased = not item.is_purchased
         if item.is_purchased:
             item.purchased_by = request.user
-            item.purchased_at = datetime.now()
+            item.purchased_at = timezone.now()
         else:
             item.purchased_by = None
             item.purchased_at = None
@@ -651,7 +669,7 @@ def mark_bill_paid(request, bill_id):
         bill = Bill.objects.get(id=bill_id, living_space__members=request.user)
         bill.status = 'paid'
         bill.paid_by = request.user
-        bill.paid_at = datetime.now()
+        bill.paid_at = timezone.now()
         bill.save()
         return Response(BillSerializer(bill).data)
     except Bill.DoesNotExist:
@@ -697,3 +715,81 @@ def mark_notification_read(request, notification_id):
         return Response({'message': 'Notification marked as read'})
     except Notification.DoesNotExist:
         return Response({'error': 'Notification not found'}, status=status.HTTP_404_NOT_FOUND)
+# House Rules Views
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_house_rules(request, living_space_id):
+    """Create house rules for a living space"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id, members=request.user)
+        
+        # Check if house rules already exist
+        if hasattr(living_space, 'house_rules'):
+            return Response({'error': 'House rules already exist for this space'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        house_rules = HouseRules.objects.create(
+            living_space=living_space,
+            quiet_hours_start=request.data.get('quiet_hours_start'),
+            quiet_hours_end=request.data.get('quiet_hours_end'),
+            overnight_guests_allowed=request.data.get('guests_allowed', True),
+            max_consecutive_guest_nights=request.data.get('max_guests', 3),
+            smoking_allowed=request.data.get('smoking_allowed', False),
+            pets_allowed=request.data.get('pets_allowed', False),
+            custom_rules=request.data.get('custom_rules', '')
+        )
+        return Response({
+            'id': house_rules.id,
+            'quiet_hours_start': house_rules.quiet_hours_start,
+            'quiet_hours_end': house_rules.quiet_hours_end,
+            'guests_allowed': house_rules.overnight_guests_allowed,
+            'max_guests': house_rules.max_consecutive_guest_nights,
+            'smoking_allowed': house_rules.smoking_allowed,
+            'pets_allowed': house_rules.pets_allowed,
+            'custom_rules': house_rules.custom_rules,
+            'created_at': house_rules.created_at,
+            'updated_at': house_rules.updated_at
+        }, status=status.HTTP_201_CREATED)
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_house_rules(request, living_space_id, rules_id):
+    """Update house rules for a living space"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id, members=request.user)
+        house_rules = HouseRules.objects.get(id=rules_id, living_space=living_space)
+        
+        # Update fields if provided
+        if 'quiet_hours_start' in request.data:
+            house_rules.quiet_hours_start = request.data['quiet_hours_start']
+        if 'quiet_hours_end' in request.data:
+            house_rules.quiet_hours_end = request.data['quiet_hours_end']
+        if 'guests_allowed' in request.data:
+            house_rules.overnight_guests_allowed = request.data['guests_allowed']
+        if 'max_guests' in request.data:
+            house_rules.max_consecutive_guest_nights = request.data['max_guests']
+        if 'smoking_allowed' in request.data:
+            house_rules.smoking_allowed = request.data['smoking_allowed']
+        if 'pets_allowed' in request.data:
+            house_rules.pets_allowed = request.data['pets_allowed']
+        if 'custom_rules' in request.data:
+            house_rules.custom_rules = request.data['custom_rules']
+
+        house_rules.save()
+        return Response({
+            'id': house_rules.id,
+            'quiet_hours_start': house_rules.quiet_hours_start,
+            'quiet_hours_end': house_rules.quiet_hours_end,
+            'guests_allowed': house_rules.overnight_guests_allowed,
+            'max_guests': house_rules.max_consecutive_guest_nights,
+            'smoking_allowed': house_rules.smoking_allowed,
+            'pets_allowed': house_rules.pets_allowed,
+            'custom_rules': house_rules.custom_rules,
+            'created_at': house_rules.created_at,
+            'updated_at': house_rules.updated_at
+        })
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+    except HouseRules.DoesNotExist:
+        return Response({'error': 'House rules not found'}, status=status.HTTP_404_NOT_FOUND)
