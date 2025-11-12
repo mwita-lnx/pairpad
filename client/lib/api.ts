@@ -219,3 +219,94 @@ export const coliving = {
     return response.data
   }
 }
+
+// Shared Dashboard API
+export const sharedDashboard = {
+  // Match Management
+  setPrimaryMatch: async (matchId: number, isPrimary: boolean): Promise<any> => {
+    const response = await api.post(`/matching/${matchId}/set-primary/`, { is_primary: isPrimary })
+    return response.data
+  },
+
+  getDashboardInfo: async (matchId: number): Promise<any> => {
+    const response = await api.get(`/matching/${matchId}/dashboard-info/`)
+    return response.data
+  },
+
+  // Shared Dashboard Data
+  getSharedDashboard: async (livingSpaceId: number): Promise<any> => {
+    const response = await api.get(`/coliving/shared-dashboard/${livingSpaceId}/`)
+    return response.data
+  },
+
+  // Shopping Lists
+  createShoppingList: async (livingSpaceId: number, name: string): Promise<any> => {
+    const response = await api.post(`/coliving/${livingSpaceId}/shopping-lists/create/`, { name })
+    return response.data
+  },
+
+  addShoppingItem: async (listId: number, item: { name: string; quantity?: string; category?: string }): Promise<any> => {
+    const response = await api.post(`/coliving/shopping-lists/${listId}/add-item/`, item)
+    return response.data
+  },
+
+  toggleShoppingItem: async (itemId: number): Promise<any> => {
+    const response = await api.patch(`/coliving/shopping-items/${itemId}/toggle/`, {})
+    return response.data
+  },
+
+  // Bills
+  createBill: async (livingSpaceId: number, bill: any): Promise<any> => {
+    const response = await api.post(`/coliving/${livingSpaceId}/bills/create/`, bill)
+    return response.data
+  },
+
+  markBillPaid: async (billId: number): Promise<any> => {
+    const response = await api.patch(`/coliving/bills/${billId}/mark-paid/`, {})
+    return response.data
+  },
+
+  // Calendar Events
+  createCalendarEvent: async (livingSpaceId: number, event: any): Promise<any> => {
+    const response = await api.post(`/coliving/${livingSpaceId}/calendar-events/create/`, event)
+    return response.data
+  },
+
+  // Notifications
+  getNotifications: async (): Promise<any> => {
+    const response = await api.get('/coliving/notifications/')
+    return response.data
+  },
+
+  markNotificationRead: async (notificationId: number): Promise<any> => {
+    const response = await api.patch(`/coliving/notifications/${notificationId}/mark-read/`, {})
+    return response.data
+  },
+
+  // Tasks (using existing coliving endpoints)
+  getTasks: async (livingSpaceId: number): Promise<any> => {
+    const response = await api.get('/coliving/tasks/', { params: { living_space: livingSpaceId } })
+    return response.data
+  },
+
+  createTask: async (task: any): Promise<any> => {
+    const response = await api.post('/coliving/tasks/', task)
+    return response.data
+  },
+
+  updateTask: async (taskId: number, task: any): Promise<any> => {
+    const response = await api.patch(`/coliving/tasks/${taskId}/`, task)
+    return response.data
+  },
+
+  // Expenses (using existing coliving endpoints)
+  getExpenses: async (livingSpaceId: number): Promise<any> => {
+    const response = await api.get('/coliving/expenses/', { params: { living_space: livingSpaceId } })
+    return response.data
+  },
+
+  createExpense: async (expense: any): Promise<any> => {
+    const response = await api.post('/coliving/expenses/', expense)
+    return response.data
+  },
+}
