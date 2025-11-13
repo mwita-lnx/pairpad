@@ -329,6 +329,12 @@ export const sharedDashboard = {
     return response.data
   },
 
+  // Living Spaces
+  getMyLivingSpaces: async (): Promise<any> => {
+    const response = await api.get('/coliving/living-spaces/')
+    return response.data
+  },
+
   // Members and Invitations
   getMembers: async (livingSpaceId: number): Promise<any> => {
     const response = await api.get(`/coliving/${livingSpaceId}/members/`)

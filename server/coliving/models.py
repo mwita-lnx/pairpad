@@ -302,19 +302,23 @@ class Room(models.Model):
         if creator != user and hasattr(creator, 'personality_profile'):
             from authentication.models import User
             from matching.views import calculate_compatibility
-            score = calculate_compatibility(user, creator)
+            result = calculate_compatibility(user, creator)
+            # Extract the compatibility_score from the result dict
+            score = result['compatibility_score'] if isinstance(result, dict) else result
             scores.append(score)
 
         # Check compatibility with current room occupant
         if self.current_occupant and self.current_occupant != user:
             if hasattr(self.current_occupant, 'personality_profile'):
-                score = calculate_compatibility(user, self.current_occupant)
+                result = calculate_compatibility(user, self.current_occupant)
+                score = result['compatibility_score'] if isinstance(result, dict) else result
                 scores.append(score)
 
         # Check compatibility with other space members
         for member in self.living_space.members.exclude(id=user.id):
             if hasattr(member, 'personality_profile'):
-                score = calculate_compatibility(user, member)
+                result = calculate_compatibility(user, member)
+                score = result['compatibility_score'] if isinstance(result, dict) else result
                 scores.append(score)
 
         return sum(scores) / len(scores) if scores else 50  # Default 50% if no comparisons

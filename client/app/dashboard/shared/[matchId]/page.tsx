@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { sharedDashboard } from '@/lib/api'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/lib/store'
@@ -19,8 +19,10 @@ import MembersSection from '@/components/shared-dashboard/MembersSection'
 export default function SharedDashboardPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, checkAuth } = useAuthStore()
   const matchId = params.matchId as string
+  const spaceIdParam = searchParams.get('spaceId')
 
   const [dashboardData, setDashboardData] = useState<any>(null)
   const [matchInfo, setMatchInfo] = useState<any>(null)
@@ -36,24 +38,38 @@ export default function SharedDashboardPage() {
     if (user) {
       loadDashboard()
     }
-  }, [matchId, user])
+  }, [matchId, spaceIdParam, user])
 
   const loadDashboard = async () => {
     try {
       setLoading(true)
 
-      // Get match info and living space
-      const matchResponse = await sharedDashboard.getDashboardInfo(Number(matchId))
-      setMatchInfo(matchResponse)
-      setLivingSpaceId(matchResponse.living_space_id)
+      // If spaceId is provided in query params, use it directly
+      if (spaceIdParam) {
+        const spaceId = Number(spaceIdParam)
+        setLivingSpaceId(spaceId)
 
-      // Get full dashboard data
-      const dashboard = await sharedDashboard.getSharedDashboard(matchResponse.living_space_id)
-      setDashboardData(dashboard)
+        // Get full dashboard data
+        const dashboard = await sharedDashboard.getSharedDashboard(spaceId)
+        setDashboardData(dashboard)
 
-      // Get members
-      const membersData = await sharedDashboard.getMembers(matchResponse.living_space_id)
-      setMembers(membersData)
+        // Get members
+        const membersData = await sharedDashboard.getMembers(spaceId)
+        setMembers(membersData)
+      } else {
+        // Original flow: Get match info and living space
+        const matchResponse = await sharedDashboard.getDashboardInfo(Number(matchId))
+        setMatchInfo(matchResponse)
+        setLivingSpaceId(matchResponse.living_space_id)
+
+        // Get full dashboard data
+        const dashboard = await sharedDashboard.getSharedDashboard(matchResponse.living_space_id)
+        setDashboardData(dashboard)
+
+        // Get members
+        const membersData = await sharedDashboard.getMembers(matchResponse.living_space_id)
+        setMembers(membersData)
+      }
     } catch (error: any) {
       console.error('Failed to load dashboard:', error)
       toast.error('Failed to load shared dashboard')

@@ -73,6 +73,8 @@ class LivingSpaceSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     average_rating = serializers.SerializerMethodField()
     available_rooms_count = serializers.SerializerMethodField()
+    member_count = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = LivingSpace
@@ -83,7 +85,7 @@ class LivingSpaceSerializer(serializers.ModelSerializer):
             'furnished', 'parking_available', 'available_from', 'lease_duration_months',
             'created_by', 'created_at', 'is_active', 'is_public',
             'images', 'rooms', 'house_rules', 'members', 'average_rating',
-            'available_rooms_count'
+            'available_rooms_count', 'member_count', 'role'
         ]
         read_only_fields = ['created_by', 'created_at']
 
@@ -97,6 +99,19 @@ class LivingSpaceSerializer(serializers.ModelSerializer):
     def get_available_rooms_count(self, obj):
         """Get count of available rooms"""
         return obj.get_available_rooms().count()
+
+    def get_member_count(self, obj):
+        """Get count of active members"""
+        return obj.memberships.filter(is_active=True).count()
+
+    def get_role(self, obj):
+        """Get the requesting user's role in this living space"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            membership = obj.memberships.filter(user=request.user, is_active=True).first()
+            if membership:
+                return membership.role
+        return None
 
 class LivingSpaceCreateSerializer(serializers.ModelSerializer):
     house_rules = HouseRulesSerializer(required=False)
