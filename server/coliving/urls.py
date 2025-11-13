@@ -40,4 +40,11 @@ urlpatterns = [
     # House Rules
     path('<int:living_space_id>/house-rules/create/', views.create_house_rules, name='create_house_rules'),
     path('<int:living_space_id>/house-rules/<int:rules_id>/update/', views.update_house_rules, name='update_house_rules'),
+
+    # Invitations and Members
+    path('<int:living_space_id>/invite/', views.invite_to_living_space, name='invite_to_living_space'),
+    path('invitations/', views.get_my_invitations, name='get_my_invitations'),
+    path('invitations/<int:invitation_id>/respond/', views.respond_to_invitation, name='respond_to_invitation'),
+    path('<int:living_space_id>/members/', views.get_living_space_members, name='get_living_space_members'),
+    path('<int:living_space_id>/members/<int:member_id>/remove/', views.remove_member, name='remove_member'),
 ]

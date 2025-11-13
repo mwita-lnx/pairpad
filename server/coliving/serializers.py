@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
     RoomApplication, LivingSpaceReview, HouseRules, Task, Expense,
-    ShoppingList, ShoppingListItem, Bill, Notification, CalendarEvent
+    ShoppingList, ShoppingListItem, Bill, Notification, CalendarEvent,
+    LivingSpaceInvitation
 )
 from authentication.serializers import UserSerializer
 
@@ -284,3 +285,33 @@ class CalendarEventSerializer(serializers.ModelSerializer):
             'task', 'bill', 'created_by', 'created_at'
         ]
         read_only_fields = ['created_by']
+class LivingSpaceInvitationSerializer(serializers.ModelSerializer):
+    invited_by_name = serializers.CharField(source='invited_by.username', read_only=True)
+    invited_user_name = serializers.CharField(source='invited_user.username', read_only=True)
+    living_space_name = serializers.CharField(source='living_space.name', read_only=True)
+    is_expired = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = LivingSpaceInvitation
+        fields = [
+            'id', 'living_space', 'living_space_name', 'invited_by', 'invited_by_name',
+            'invited_user', 'invited_user_name', 'status', 'role', 'message',
+            'created_at', 'updated_at', 'expires_at', 'responded_at', 'is_expired'
+        ]
+        read_only_fields = ['invited_by', 'created_at', 'updated_at', 'responded_at']
+    
+    def get_is_expired(self, obj):
+        return obj.is_expired()
+
+class LivingSpaceMemberSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    full_name = serializers.CharField(source='user.fullName', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    
+    class Meta:
+        model = LivingSpaceMember
+        fields = [
+            'id', 'user', 'username', 'full_name', 'email', 'role',
+            'joined_at', 'left_at', 'is_active'
+        ]
+        read_only_fields = ['joined_at', 'left_at']

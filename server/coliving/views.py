@@ -5,12 +5,16 @@ from rest_framework import generics, status, viewsets, filters
 from rest_framework.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Avg
+from django.contrib.auth import get_user_model
 from datetime import datetime
 from django.utils import timezone
+
+User = get_user_model()
 from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
     RoomApplication, LivingSpaceReview, HouseRules, Task, Expense,
-    ShoppingList, ShoppingListItem, Bill, Notification, CalendarEvent
+    ShoppingList, ShoppingListItem, Bill, Notification, CalendarEvent,
+    LivingSpaceInvitation
 )
 from matching.models import MatchInteraction, Match
 from .serializers import (
@@ -793,3 +797,193 @@ def update_house_rules(request, living_space_id, rules_id):
         return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
     except HouseRules.DoesNotExist:
         return Response({'error': 'House rules not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# Living Space Invitation Views
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def invite_to_living_space(request, living_space_id):
+    """Invite a user to join a living space"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id)
+        
+        # Check if requester is an admin member
+        membership = LivingSpaceMember.objects.filter(
+            living_space=living_space,
+            user=request.user,
+            role='admin',
+            is_active=True
+        ).first()
+        
+        if not membership and living_space.created_by != request.user:
+            return Response({'error': 'Only admins can invite members'}, status=status.HTTP_403_FORBIDDEN)
+        
+        invited_user_id = request.data.get('invited_user_id')
+        invited_user = User.objects.get(id=invited_user_id)
+        
+        # Check if user is already a member
+        if LivingSpaceMember.objects.filter(living_space=living_space, user=invited_user, is_active=True).exists():
+            return Response({'error': 'User is already a member'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if invitation already exists
+        if LivingSpaceInvitation.objects.filter(
+            living_space=living_space,
+            invited_user=invited_user,
+            status='pending'
+        ).exists():
+            return Response({'error': 'Invitation already sent'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create invitation (expires in 7 days)
+        from datetime import timedelta
+        invitation = LivingSpaceInvitation.objects.create(
+            living_space=living_space,
+            invited_by=request.user,
+            invited_user=invited_user,
+            role=request.data.get('role', 'member'),
+            message=request.data.get('message', ''),
+            expires_at=timezone.now() + timedelta(days=7)
+        )
+        
+        # Create notification
+        Notification.objects.create(
+            user=invited_user,
+            notification_type='message',
+            title='Living Space Invitation',
+            message=f'{request.user.username} invited you to join {living_space.name}',
+            living_space=living_space
+        )
+        
+        from coliving.serializers import LivingSpaceInvitationSerializer
+        return Response(LivingSpaceInvitationSerializer(invitation).data, status=status.HTTP_201_CREATED)
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_my_invitations(request):
+    """Get invitations for current user"""
+    invitations = LivingSpaceInvitation.objects.filter(
+        invited_user=request.user,
+        status='pending'
+    ).order_by('-created_at')
+    
+    from coliving.serializers import LivingSpaceInvitationSerializer
+    return Response(LivingSpaceInvitationSerializer(invitations, many=True).data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def respond_to_invitation(request, invitation_id):
+    """Accept or decline an invitation"""
+    try:
+        invitation = LivingSpaceInvitation.objects.get(
+            id=invitation_id,
+            invited_user=request.user,
+            status='pending'
+        )
+        
+        if invitation.is_expired():
+            invitation.status = 'expired'
+            invitation.save()
+            return Response({'error': 'Invitation has expired'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        response = request.data.get('response')  # 'accept' or 'decline'
+        
+        if response == 'accept':
+            # Create membership
+            LivingSpaceMember.objects.create(
+                living_space=invitation.living_space,
+                user=request.user,
+                role=invitation.role
+            )
+            invitation.status = 'accepted'
+            
+            # Notify inviter
+            Notification.objects.create(
+                user=invitation.invited_by,
+                notification_type='message',
+                title='Invitation Accepted',
+                message=f'{request.user.username} accepted your invitation to join {invitation.living_space.name}',
+                living_space=invitation.living_space
+            )
+        elif response == 'decline':
+            invitation.status = 'declined'
+        else:
+            return Response({'error': 'Invalid response'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        invitation.responded_at = timezone.now()
+        invitation.save()
+        
+        from coliving.serializers import LivingSpaceInvitationSerializer
+        return Response(LivingSpaceInvitationSerializer(invitation).data)
+    except LivingSpaceInvitation.DoesNotExist:
+        return Response({'error': 'Invitation not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_living_space_members(request, living_space_id):
+    """Get all members of a living space"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id)
+        
+        # Check if user is a member
+        if not living_space.members.filter(id=request.user.id).exists():
+            return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+        
+        members = LivingSpaceMember.objects.filter(
+            living_space=living_space,
+            is_active=True
+        ).select_related('user')
+        
+        from coliving.serializers import LivingSpaceMemberSerializer
+        return Response(LivingSpaceMemberSerializer(members, many=True).data)
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remove_member(request, living_space_id, member_id):
+    """Remove a member from living space"""
+    try:
+        living_space = LivingSpace.objects.get(id=living_space_id)
+        
+        # Check if requester is admin or space creator
+        requester_membership = LivingSpaceMember.objects.filter(
+            living_space=living_space,
+            user=request.user,
+            role='admin',
+            is_active=True
+        ).first()
+        
+        if not requester_membership and living_space.created_by != request.user:
+            return Response({'error': 'Only admins can remove members'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Get member to remove
+        member = LivingSpaceMember.objects.get(
+            id=member_id,
+            living_space=living_space
+        )
+        
+        # Can't remove creator
+        if member.user == living_space.created_by:
+            return Response({'error': 'Cannot remove space creator'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Mark as inactive
+        member.is_active = False
+        member.left_at = timezone.now()
+        member.save()
+        
+        # Notify removed user
+        Notification.objects.create(
+            user=member.user,
+            notification_type='message',
+            title='Removed from Living Space',
+            message=f'You have been removed from {living_space.name}',
+            living_space=living_space
+        )
+        
+        return Response({'message': 'Member removed successfully'})
+    except LivingSpace.DoesNotExist:
+        return Response({'error': 'Living space not found'}, status=status.HTTP_404_NOT_FOUND)
+    except LivingSpaceMember.DoesNotExist:
+        return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)

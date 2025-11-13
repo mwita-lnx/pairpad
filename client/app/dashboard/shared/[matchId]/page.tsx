@@ -6,7 +6,7 @@ import { sharedDashboard } from '@/lib/api'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/lib/store'
 
-// Import components (to be created)
+// Import components
 import TasksSection from '@/components/shared-dashboard/TasksSection'
 import ExpensesSection from '@/components/shared-dashboard/ExpensesSection'
 import BillsSection from '@/components/shared-dashboard/BillsSection'
@@ -14,6 +14,7 @@ import ShoppingListSection from '@/components/shared-dashboard/ShoppingListSecti
 import CalendarSection from '@/components/shared-dashboard/CalendarSection'
 import HouseRulesSection from '@/components/shared-dashboard/HouseRulesSection'
 import NotificationsPanel from '@/components/shared-dashboard/NotificationsPanel'
+import MembersSection from '@/components/shared-dashboard/MembersSection'
 
 export default function SharedDashboardPage() {
   const params = useParams()
@@ -24,6 +25,7 @@ export default function SharedDashboardPage() {
   const [dashboardData, setDashboardData] = useState<any>(null)
   const [matchInfo, setMatchInfo] = useState<any>(null)
   const [livingSpaceId, setLivingSpaceId] = useState<number | null>(null)
+  const [members, setMembers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -48,6 +50,10 @@ export default function SharedDashboardPage() {
       // Get full dashboard data
       const dashboard = await sharedDashboard.getSharedDashboard(matchResponse.living_space_id)
       setDashboardData(dashboard)
+
+      // Get members
+      const membersData = await sharedDashboard.getMembers(matchResponse.living_space_id)
+      setMembers(membersData)
     } catch (error: any) {
       console.error('Failed to load dashboard:', error)
       toast.error('Failed to load shared dashboard')
@@ -147,6 +153,13 @@ export default function SharedDashboardPage() {
 
           {/* Right Column - 1/3 width */}
           <div className="space-y-6">
+            <MembersSection
+              livingSpaceId={livingSpaceId!}
+              members={members}
+              currentUserId={user?.id!}
+              onUpdate={loadDashboard}
+            />
+
             <BillsSection
               bills={dashboardData.bills}
               livingSpaceId={livingSpaceId!}

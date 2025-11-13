@@ -589,3 +589,39 @@ class CalendarEvent(models.Model):
             models.Index(fields=['living_space', 'start_datetime']),
             models.Index(fields=['event_type']),
         ]
+
+class LivingSpaceInvitation(models.Model):
+    INVITATION_STATUS = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+        ('expired', 'Expired'),
+    ]
+
+    living_space = models.ForeignKey(LivingSpace, on_delete=models.CASCADE, related_name='invitations')
+    invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    invited_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_invitations')
+    
+    status = models.CharField(max_length=20, choices=INVITATION_STATUS, default='pending')
+    role = models.CharField(max_length=20, choices=LivingSpaceMember.MEMBER_ROLES, default='member')
+    
+    message = models.TextField(blank=True, help_text="Optional message from inviter")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    expires_at = models.DateTimeField(help_text="Invitation expiration date")
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ['living_space', 'invited_user']
+        indexes = [
+            models.Index(fields=['invited_user', 'status']),
+            models.Index(fields=['living_space', 'status']),
+        ]
+
+    def __str__(self):
+        return f"Invitation to {self.invited_user.username} for {self.living_space.name}"
+
+    def is_expired(self):
+        from django.utils import timezone
+        return timezone.now() > self.expires_at and self.status == 'pending'

@@ -328,4 +328,34 @@ export const sharedDashboard = {
     const response = await api.patch(`/coliving/${livingSpaceId}/house-rules/${rulesId}/update/`, rules)
     return response.data
   },
+
+  // Members and Invitations
+  getMembers: async (livingSpaceId: number): Promise<any> => {
+    const response = await api.get(`/coliving/${livingSpaceId}/members/`)
+    return response.data
+  },
+
+  inviteMember: async (livingSpaceId: number, invitedUserId: number, role: string, message?: string): Promise<any> => {
+    const response = await api.post(`/coliving/${livingSpaceId}/invite/`, {
+      invited_user_id: invitedUserId,
+      role,
+      message
+    })
+    return response.data
+  },
+
+  getMyInvitations: async (): Promise<any> => {
+    const response = await api.get('/coliving/invitations/')
+    return response.data
+  },
+
+  respondToInvitation: async (invitationId: number, response: 'accept' | 'decline'): Promise<any> => {
+    const result = await api.post(`/coliving/invitations/${invitationId}/respond/`, { response })
+    return result.data
+  },
+
+  removeMember: async (livingSpaceId: number, memberId: number): Promise<any> => {
+    const response = await api.delete(`/coliving/${livingSpaceId}/members/${memberId}/remove/`)
+    return response.data
+  },
 }
