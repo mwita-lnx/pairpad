@@ -91,6 +91,28 @@ export default function MembersSection({ livingSpaceId, members, currentUserId, 
     }
   }
 
+  const handleLeaveSpace = async () => {
+    if (!confirm('Are you sure you want to leave this living space?')) {
+      return
+    }
+
+    try {
+      const currentMember = members.find(m => m.user === currentUserId)
+      if (!currentMember) {
+        toast.error('Could not find your membership')
+        return
+      }
+
+      await sharedDashboard.removeMember(livingSpaceId, currentMember.id)
+      toast.success('You have left the living space')
+      // Redirect to dashboard after leaving
+      window.location.href = '/dashboard'
+    } catch (error: any) {
+      console.error('Failed to leave space:', error)
+      toast.error(error.response?.data?.error || 'Failed to leave space')
+    }
+  }
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'admin': return 'bg-purple-100 text-purple-800'
@@ -104,17 +126,27 @@ export default function MembersSection({ livingSpaceId, members, currentUserId, 
     <div className="bg-white rounded-2xl shadow-lg p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-[#484848]">👥 Members ({members.length})</h2>
-        {isAdmin && (
-          <button
-            onClick={() => {
-              setShowInviteModal(true)
-              handleSearchUsers()
-            }}
-            className="px-4 py-2 bg-[#5d41ab] text-white rounded-xl hover:bg-[#4c2d87] transition-colors"
-          >
-            + Invite Member
-          </button>
-        )}
+        <div className="flex gap-2">
+          {isAdmin && (
+            <button
+              onClick={() => {
+                setShowInviteModal(true)
+                handleSearchUsers()
+              }}
+              className="px-4 py-2 bg-[#5d41ab] text-white rounded-xl hover:bg-[#4c2d87] transition-colors"
+            >
+              + Invite Member
+            </button>
+          )}
+          {!isAdmin && (
+            <button
+              onClick={handleLeaveSpace}
+              className="px-4 py-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-colors"
+            >
+              Leave Space
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-3">

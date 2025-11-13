@@ -68,6 +68,24 @@ export default function MatchesPage() {
     }
   }
 
+  const handleUnmatch = async (matchId: number, username: string) => {
+    if (!confirm(`Are you sure you want to unmatch with ${username}? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      await matching.unmatch(matchId)
+      toast.success('Successfully unmatched')
+
+      // Reload matches
+      const matches = await matching.getMatches()
+      setMutualMatches(matches)
+    } catch (error: any) {
+      console.error('Failed to unmatch:', error)
+      toast.error(error.response?.data?.error || 'Failed to unmatch')
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white font-['DynaPuff',Helvetica,Arial,sans-serif]">
@@ -183,31 +201,39 @@ export default function MatchesPage() {
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
-                    {match.living_space_id ? (
-                      <Link href={`/dashboard/shared/${match.id}`} className="flex-1">
-                        <button className="w-full bg-[#5d41ab] text-white py-3 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
-                          🏠 Open Shared Dashboard
-                        </button>
-                      </Link>
-                    ) : (
-                      <Link href={`/dashboard/shared/${match.id}`} className="flex-1">
-                        <button className="w-full bg-[#5d41ab] text-white py-3 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
-                          🏠 Create Shared Dashboard
-                        </button>
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => handleSetPrimary(match.id, !match.is_primary)}
-                      className="flex-1 border-2 border-[#5d41ab] text-[#5d41ab] py-3 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all"
-                    >
-                      {match.is_primary ? '⭐ Remove Primary' : '⭐ Set as Primary'}
-                    </button>
-                    <Link href={`/profile/${matchUser.id}`} className="flex-1">
-                      <button className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-2xl font-medium hover:bg-gray-50 transition-all">
-                        View Profile
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      {match.living_space_id ? (
+                        <Link href={`/dashboard/shared/${match.id}`} className="flex-1">
+                          <button className="w-full bg-[#5d41ab] text-white py-3 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
+                            🏠 Open Shared Dashboard
+                          </button>
+                        </Link>
+                      ) : (
+                        <Link href={`/dashboard/shared/${match.id}`} className="flex-1">
+                          <button className="w-full bg-[#5d41ab] text-white py-3 rounded-2xl font-medium hover:bg-[#4c2d87] transition-all hover:scale-105">
+                            🏠 Create Shared Dashboard
+                          </button>
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => handleSetPrimary(match.id, !match.is_primary)}
+                        className="flex-1 border-2 border-[#5d41ab] text-[#5d41ab] py-3 rounded-2xl font-medium hover:bg-[#5d41ab] hover:text-white transition-all"
+                      >
+                        {match.is_primary ? '⭐ Remove Primary' : '⭐ Set as Primary'}
                       </button>
-                    </Link>
+                      <Link href={`/profile/${matchUser.id}`} className="flex-1">
+                        <button className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-2xl font-medium hover:bg-gray-50 transition-all">
+                          View Profile
+                        </button>
+                      </Link>
+                    </div>
+                    <button
+                      onClick={() => handleUnmatch(match.id, matchUser.fullName || matchUser.username)}
+                      className="w-full border-2 border-red-300 text-red-600 py-3 rounded-2xl font-medium hover:bg-red-50 transition-all"
+                    >
+                      ✕ Unmatch
+                    </button>
                   </div>
                 </div>
               )

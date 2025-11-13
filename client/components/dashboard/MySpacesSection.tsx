@@ -32,9 +32,15 @@ export default function MySpacesSection() {
     try {
       setLoading(true)
       const data = await sharedDashboard.getMyLivingSpaces()
-      setSpaces(data)
-    } catch (error) {
+      console.log('Living spaces response:', data)
+
+      // Handle paginated response from DRF
+      const spacesArray = Array.isArray(data) ? data : (data.results || [])
+      console.log('Number of spaces:', spacesArray.length)
+      setSpaces(spacesArray)
+    } catch (error: any) {
       console.error('Failed to load living spaces:', error)
+      console.error('Error response:', error.response?.data)
       toast.error('Failed to load your living spaces')
     } finally {
       setLoading(false)

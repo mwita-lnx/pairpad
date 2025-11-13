@@ -79,6 +79,25 @@ export default function SharedDashboardPage() {
     }
   }
 
+  const handleDeleteSpace = async () => {
+    if (!confirm('Are you sure you want to delete this living space? This will permanently delete all tasks, expenses, bills, and other data. This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      await sharedDashboard.deleteLivingSpace(livingSpaceId!)
+      toast.success('Living space deleted successfully')
+      router.push('/dashboard')
+    } catch (error: any) {
+      console.error('Failed to delete living space:', error)
+      toast.error(error.response?.data?.error || 'Failed to delete living space')
+    }
+  }
+
+  // Check if current user is admin
+  const currentMember = members.find(m => m.user === user?.id)
+  const isAdmin = currentMember?.role === 'admin'
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center font-['DynaPuff',Helvetica,Arial,sans-serif]">
@@ -90,7 +109,7 @@ export default function SharedDashboardPage() {
     )
   }
 
-  if (!dashboardData || !matchInfo) {
+  if (!dashboardData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center font-['DynaPuff',Helvetica,Arial,sans-serif]">
         <div className="text-center">
@@ -116,17 +135,36 @@ export default function SharedDashboardPage() {
               <h1 className="text-3xl font-bold mb-2">
                 {dashboardData.living_space.name}
               </h1>
-              <p className="text-red-100">
-                Living with {matchInfo.other_user.fullName || matchInfo.other_user.username}
-              </p>
+              {matchInfo ? (
+                <p className="text-red-100">
+                  Living with {matchInfo.other_user.fullName || matchInfo.other_user.username}
+                </p>
+              ) : (
+                <p className="text-red-100">
+                  Shared Living Space • {members.length} {members.length === 1 ? 'member' : 'members'}
+                </p>
+              )}
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold mb-1">{matchInfo.compatibility_score}%</div>
-              <div className="text-sm text-red-100">Compatible</div>
-              {matchInfo.is_primary && (
-                <div className="mt-2 bg-white/20 px-3 py-1 rounded-full text-xs">
-                  ⭐ Primary Match
+            <div className="flex items-center gap-4">
+              {matchInfo && (
+                <div className="text-right">
+                  <div className="text-4xl font-bold mb-1">{matchInfo.compatibility_score}%</div>
+                  <div className="text-sm text-red-100">Compatible</div>
+                  {matchInfo.is_primary && (
+                    <div className="mt-2 bg-white/20 px-3 py-1 rounded-full text-xs">
+                      ⭐ Primary Match
+                    </div>
+                  )}
                 </div>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={handleDeleteSpace}
+                  className="bg-red-500/20 hover:bg-red-500/30 text-white px-4 py-2 rounded-xl transition-colors border border-red-400/30"
+                  title="Delete Living Space"
+                >
+                  🗑️ Delete Space
+                </button>
               )}
             </div>
           </div>
@@ -149,14 +187,14 @@ export default function SharedDashboardPage() {
             <TasksSection
               tasks={dashboardData.tasks}
               livingSpaceId={livingSpaceId!}
-              otherUser={matchInfo.other_user}
+              otherUser={matchInfo?.other_user || null}
               onUpdate={loadDashboard}
             />
 
             <ExpensesSection
               expenses={dashboardData.expenses}
               livingSpaceId={livingSpaceId!}
-              otherUser={matchInfo.other_user}
+              otherUser={matchInfo?.other_user || null}
               onUpdate={loadDashboard}
             />
 

@@ -545,3 +545,33 @@ def calculate_compatibility(user1, user2):
             'location': round(location_score)
         }
     }
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def unmatch(request, match_id):
+    """Delete/unmatch from a match"""
+    try:
+        # Get the match
+        match = Match.objects.get(
+            Q(id=match_id) & (Q(user1=request.user) | Q(user2=request.user))
+        )
+
+        # Check if there's a shared living space
+        if match.living_space:
+            return Response(
+                {'error': 'Cannot unmatch while you have a shared living space. Please leave the space first or delete it.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Delete the match
+        match.delete()
+
+        # Also delete the match interaction if it exists
+        MatchInteraction.objects.filter(
+            Q(user=request.user) & Q(target_user__in=[match.user1, match.user2])
+        ).delete()
+
+        return Response({'message': 'Successfully unmatched'}, status=status.HTTP_200_OK)
+
+    except Match.DoesNotExist:
+        return Response({'error': 'Match not found'}, status=status.HTTP_404_NOT_FOUND)

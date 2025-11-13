@@ -38,10 +38,21 @@ class LivingSpaceViewSet(viewsets.ModelViewSet):
         """Filter living spaces based on user permissions and public visibility"""
         user = self.request.user
 
+        print(f"DEBUG: Getting living spaces for user: {user.username} (ID: {user.id})")
+
         # Show public spaces and spaces where user is a member
         user_spaces = LivingSpace.objects.filter(
             Q(is_public=True) | Q(members=user)
         ).distinct()
+
+        print(f"DEBUG: Found {user_spaces.count()} spaces (public + member)")
+
+        # Debug: Check memberships directly
+        from coliving.models import LivingSpaceMember
+        memberships = LivingSpaceMember.objects.filter(user=user, is_active=True)
+        print(f"DEBUG: User has {memberships.count()} active memberships:")
+        for membership in memberships:
+            print(f"  - {membership.living_space.name} (ID: {membership.living_space.id}) as {membership.role}")
 
         # Filter by budget if provided
         min_budget = self.request.query_params.get('min_budget')
@@ -61,6 +72,33 @@ class LivingSpaceViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        """Delete a living space - only creator or admin can delete"""
+        living_space = self.get_object()
+
+        # Check if user is the creator or an admin member
+        is_creator = living_space.created_by == request.user
+        is_admin = LivingSpaceMember.objects.filter(
+            living_space=living_space,
+            user=request.user,
+            role='admin',
+            is_active=True
+        ).exists()
+
+        if not (is_creator or is_admin):
+            return Response(
+                {'error': 'Only the creator or admin members can delete this living space'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Delete the living space (will cascade delete members, tasks, etc.)
+        living_space.delete()
+
+        return Response(
+            {'message': 'Living space deleted successfully'},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(detail=True, methods=['post'])
     def join(self, request, pk=None):

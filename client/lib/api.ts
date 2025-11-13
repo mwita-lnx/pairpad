@@ -133,6 +133,11 @@ export const matching = {
   requestMatch: async (userId: string): Promise<any> => {
     const response = await api.post('/matching/request/', { user_id: userId })
     return response.data
+  },
+
+  unmatch: async (matchId: number): Promise<any> => {
+    const response = await api.delete(`/matching/${matchId}/unmatch/`)
+    return response.data
   }
 }
 
@@ -362,6 +367,11 @@ export const sharedDashboard = {
 
   removeMember: async (livingSpaceId: number, memberId: number): Promise<any> => {
     const response = await api.delete(`/coliving/${livingSpaceId}/members/${memberId}/remove/`)
+    return response.data
+  },
+
+  deleteLivingSpace: async (livingSpaceId: number): Promise<any> => {
+    const response = await api.delete(`/coliving/living-spaces/${livingSpaceId}/`)
     return response.data
   },
 }
