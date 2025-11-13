@@ -38,21 +38,17 @@ class LivingSpaceViewSet(viewsets.ModelViewSet):
         """Filter living spaces based on user permissions and public visibility"""
         user = self.request.user
 
-        print(f"DEBUG: Getting living spaces for user: {user.username} (ID: {user.id})")
+        # Check if this is for "My Spaces" (collaboration spaces only)
+        my_spaces_only = self.request.query_params.get('my_spaces_only') == 'true'
 
-        # Show public spaces and spaces where user is a member
-        user_spaces = LivingSpace.objects.filter(
-            Q(is_public=True) | Q(members=user)
-        ).distinct()
-
-        print(f"DEBUG: Found {user_spaces.count()} spaces (public + member)")
-
-        # Debug: Check memberships directly
-        from coliving.models import LivingSpaceMember
-        memberships = LivingSpaceMember.objects.filter(user=user, is_active=True)
-        print(f"DEBUG: User has {memberships.count()} active memberships:")
-        for membership in memberships:
-            print(f"  - {membership.living_space.name} (ID: {membership.living_space.id}) as {membership.role}")
+        if my_spaces_only:
+            # Only return spaces where user is an active member (for collaboration/dashboard)
+            user_spaces = LivingSpace.objects.filter(members=user).distinct()
+        else:
+            # Show public spaces and spaces where user is a member (for browsing)
+            user_spaces = LivingSpace.objects.filter(
+                Q(is_public=True) | Q(members=user)
+            ).distinct()
 
         # Filter by budget if provided
         min_budget = self.request.query_params.get('min_budget')
@@ -544,10 +540,11 @@ class ExpenseListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         # If paid_by_id is not provided, default to current user
-        if not serializer.validated_data.get('paid_by_id'):
-            serializer.save(paid_by=self.request.user)
+        paid_by_id = serializer.validated_data.pop('paid_by_id', None)
+        if paid_by_id:
+            serializer.save(paid_by_id=paid_by_id)
         else:
-            serializer.save()
+            serializer.save(paid_by=self.request.user)
 
 class ExpenseDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
@@ -556,6 +553,93 @@ class ExpenseDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         user_spaces = LivingSpace.objects.filter(members=self.request.user)
         return Expense.objects.filter(living_space__in=user_spaces)
+
+class BillDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = BillSerializer
+    lookup_url_kwarg = 'bill_id'
+
+    def get_queryset(self):
+        user_spaces = LivingSpace.objects.filter(members=self.request.user)
+        return Bill.objects.filter(living_space__in=user_spaces)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def settle_expense_split(request, expense_id, user_id):
+    """Mark an expense split as settled/paid"""
+    try:
+        from coliving.models import ExpenseSplit
+
+        # Get the expense and verify user has access
+        expense = Expense.objects.get(id=expense_id)
+        user_spaces = LivingSpace.objects.filter(members=request.user)
+
+        if expense.living_space not in user_spaces:
+            return Response({'error': 'Access denied'}, status=403)
+
+        # Get the split for this user
+        split = ExpenseSplit.objects.get(expense=expense, user_id=user_id)
+
+        # Toggle settlement status
+        is_settled = request.data.get('is_settled', True)
+        split.is_settled = is_settled
+
+        if is_settled:
+            split.amount_paid = split.amount_owed
+        else:
+            split.amount_paid = 0
+
+        split.save()
+
+        return Response({
+            'id': split.id,
+            'user_id': split.user_id,
+            'is_settled': split.is_settled,
+            'amount_paid': str(split.amount_paid)
+        })
+    except Expense.DoesNotExist:
+        return Response({'error': 'Expense not found'}, status=404)
+    except ExpenseSplit.DoesNotExist:
+        return Response({'error': 'Split not found'}, status=404)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def settle_bill_split(request, bill_id, user_id):
+    """Mark a bill split as settled/paid"""
+    try:
+        from coliving.models import BillSplit
+
+        # Get the bill and verify user has access
+        bill = Bill.objects.get(id=bill_id)
+        user_spaces = LivingSpace.objects.filter(members=request.user)
+
+        if bill.living_space not in user_spaces:
+            return Response({'error': 'Access denied'}, status=403)
+
+        # Get the split for this user
+        split = BillSplit.objects.get(bill=bill, user_id=user_id)
+
+        # Toggle settlement status
+        is_settled = request.data.get('is_settled', True)
+        split.is_settled = is_settled
+
+        if is_settled:
+            split.amount_paid = split.amount_owed
+        else:
+            split.amount_paid = 0
+
+        split.save()
+
+        return Response({
+            'id': split.id,
+            'user_id': split.user_id,
+            'is_settled': split.is_settled,
+            'amount_paid': str(split.amount_paid)
+        })
+    except Bill.DoesNotExist:
+        return Response({'error': 'Bill not found'}, status=404)
+    except BillSplit.DoesNotExist:
+        return Response({'error': 'Split not found'}, status=404)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

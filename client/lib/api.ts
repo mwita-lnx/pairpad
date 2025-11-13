@@ -274,6 +274,16 @@ export const sharedDashboard = {
     return response.data
   },
 
+  updateBill: async (billId: number, bill: any): Promise<any> => {
+    const response = await api.patch(`/coliving/bills/${billId}/`, bill)
+    return response.data
+  },
+
+  deleteBill: async (billId: number): Promise<any> => {
+    const response = await api.delete(`/coliving/bills/${billId}/`)
+    return response.data
+  },
+
   markBillPaid: async (billId: number): Promise<any> => {
     const response = await api.patch(`/coliving/bills/${billId}/mark-paid/`, {})
     return response.data
@@ -323,6 +333,26 @@ export const sharedDashboard = {
     return response.data
   },
 
+  updateExpense: async (expenseId: number, expense: any): Promise<any> => {
+    const response = await api.patch(`/coliving/expenses/${expenseId}/`, expense)
+    return response.data
+  },
+
+  deleteExpense: async (livingSpaceId: number, expenseId: number): Promise<any> => {
+    const response = await api.delete(`/coliving/expenses/${expenseId}/`)
+    return response.data
+  },
+
+  settleExpenseSplit: async (expenseId: number, userId: number, isSettled: boolean): Promise<any> => {
+    const response = await api.patch(`/coliving/expenses/${expenseId}/settle/${userId}/`, { is_settled: isSettled })
+    return response.data
+  },
+
+  settleBillSplit: async (billId: number, userId: number, isSettled: boolean): Promise<any> => {
+    const response = await api.patch(`/coliving/bills/${billId}/settle/${userId}/`, { is_settled: isSettled })
+    return response.data
+  },
+
   // House Rules
   createHouseRules: async (livingSpaceId: number, rules: any): Promise<any> => {
     const response = await api.post(`/coliving/${livingSpaceId}/house-rules/create/`, rules)
@@ -336,7 +366,10 @@ export const sharedDashboard = {
 
   // Living Spaces
   getMyLivingSpaces: async (): Promise<any> => {
-    const response = await api.get('/coliving/living-spaces/')
+    // Only get spaces where user is actually a member (for collaboration)
+    const response = await api.get('/coliving/living-spaces/', {
+      params: { my_spaces_only: 'true' }
+    })
     return response.data
   },
 

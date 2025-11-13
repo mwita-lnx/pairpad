@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import (
     LivingSpace, LivingSpaceMember, Room, LivingSpaceImage,
     RoomApplication, LivingSpaceReview, HouseRules, Task, Expense,
-    ShoppingList, ShoppingListItem, Bill, Notification, CalendarEvent,
+    ShoppingList, ShoppingListItem, Bill, BillSplit, Notification, CalendarEvent,
     LivingSpaceInvitation
 )
 from authentication.serializers import UserSerializer
@@ -234,17 +234,165 @@ class TaskSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_by', 'completed_at']
 
 class ExpenseSerializer(serializers.ModelSerializer):
-    paid_by = serializers.StringRelatedField(required=False, allow_null=True)
+    paid_by = serializers.CharField(source='paid_by.username', read_only=True, required=False, allow_null=True)
     paid_by_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
+    participant_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False,
+        help_text="List of user IDs to split this expense with"
+    )
+    participant_percentages = serializers.DictField(
+        child=serializers.FloatField(),
+        write_only=True,
+        required=False,
+        help_text="Dictionary of user_id: percentage for percentage splits"
+    )
+    participant_amounts = serializers.DictField(
+        child=serializers.FloatField(),
+        write_only=True,
+        required=False,
+        help_text="Dictionary of user_id: custom_amount for custom splits"
+    )
+    participants = serializers.SerializerMethodField()
+    splits = serializers.SerializerMethodField()
 
     class Meta:
         model = Expense
         fields = [
             'id', 'living_space', 'title', 'description', 'category',
             'amount', 'paid_by', 'paid_by_id', 'split_type', 'receipt_image',
-            'expense_date', 'created_at'
+            'expense_date', 'created_at', 'participant_ids', 'participant_percentages',
+            'participant_amounts', 'participants', 'splits'
         ]
         read_only_fields = []
+
+    def get_participants(self, obj):
+        """Get list of participants in this expense"""
+        return [{'id': user.id, 'username': user.username} for user in obj.participants.all()]
+
+    def get_splits(self, obj):
+        """Get expense split details"""
+        splits = obj.splits.all()
+        return [{
+            'user_id': split.user.id,
+            'username': split.user.username,
+            'amount_owed': str(split.amount_owed),
+            'amount_paid': str(split.amount_paid),
+            'is_settled': split.is_settled
+        } for split in splits]
+
+    def create(self, validated_data):
+        participant_ids = validated_data.pop('participant_ids', [])
+        participant_percentages = validated_data.pop('participant_percentages', {})
+        participant_amounts = validated_data.pop('participant_amounts', {})
+        expense = super().create(validated_data)
+
+        # If participants are specified, create expense splits
+        if participant_ids:
+            from coliving.models import ExpenseSplit
+            from decimal import Decimal
+
+            # Calculate split amount based on split_type
+            if expense.split_type == 'equal':
+                split_amount = Decimal(expense.amount) / len(participant_ids)
+                # Create splits for each participant
+                for user_id in participant_ids:
+                    ExpenseSplit.objects.create(
+                        expense=expense,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+            elif expense.split_type == 'percentage' and participant_percentages:
+                # Use custom percentages for each participant
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    percentage = Decimal(participant_percentages.get(user_id_str, 0))
+                    amount_owed = (Decimal(expense.amount) * percentage) / Decimal(100)
+                    ExpenseSplit.objects.create(
+                        expense=expense,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            elif expense.split_type == 'custom' and participant_amounts:
+                # Use custom amounts for each participant
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    amount_owed = Decimal(participant_amounts.get(user_id_str, 0))
+                    ExpenseSplit.objects.create(
+                        expense=expense,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            else:
+                # Default to equal split for other types
+                split_amount = Decimal(expense.amount) / len(participant_ids)
+                for user_id in participant_ids:
+                    ExpenseSplit.objects.create(
+                        expense=expense,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+
+        return expense
+
+    def update(self, instance, validated_data):
+        participant_ids = validated_data.pop('participant_ids', [])
+        participant_percentages = validated_data.pop('participant_percentages', {})
+        participant_amounts = validated_data.pop('participant_amounts', {})
+
+        # Update the expense
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Delete existing splits
+        instance.splits.all().delete()
+
+        # Create new splits if participants are specified
+        if participant_ids:
+            from coliving.models import ExpenseSplit
+            from decimal import Decimal
+
+            # Calculate split amount based on split_type
+            if instance.split_type == 'equal':
+                split_amount = Decimal(instance.amount) / len(participant_ids)
+                for user_id in participant_ids:
+                    ExpenseSplit.objects.create(
+                        expense=instance,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+            elif instance.split_type == 'percentage' and participant_percentages:
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    percentage = Decimal(participant_percentages.get(user_id_str, 0))
+                    amount_owed = (Decimal(instance.amount) * percentage) / Decimal(100)
+                    ExpenseSplit.objects.create(
+                        expense=instance,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            elif instance.split_type == 'custom' and participant_amounts:
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    amount_owed = Decimal(participant_amounts.get(user_id_str, 0))
+                    ExpenseSplit.objects.create(
+                        expense=instance,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            else:
+                # Default to equal split for other types
+                split_amount = Decimal(instance.amount) / len(participant_ids)
+                for user_id in participant_ids:
+                    ExpenseSplit.objects.create(
+                        expense=instance,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+
+        return instance
 
 class ShoppingListItemSerializer(serializers.ModelSerializer):
     added_by = serializers.StringRelatedField()
@@ -268,17 +416,161 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_by']
 
 class BillSerializer(serializers.ModelSerializer):
-    created_by = serializers.StringRelatedField()
-    paid_by = serializers.StringRelatedField()
+    created_by = serializers.CharField(source='created_by.username', read_only=True)
+    paid_by = serializers.CharField(source='paid_by.username', read_only=True, required=False, allow_null=True)
+    paid_by_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
+    participant_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False,
+        help_text="List of user IDs to split this bill with"
+    )
+    participant_percentages = serializers.DictField(
+        child=serializers.FloatField(),
+        write_only=True,
+        required=False,
+        help_text="Dictionary of user_id: percentage for percentage splits"
+    )
+    participant_amounts = serializers.DictField(
+        child=serializers.FloatField(),
+        write_only=True,
+        required=False,
+        help_text="Dictionary of user_id: custom_amount for custom splits"
+    )
+    participants = serializers.SerializerMethodField()
+    splits = serializers.SerializerMethodField()
 
     class Meta:
         model = Bill
         fields = [
             'id', 'living_space', 'title', 'description', 'amount',
-            'due_date', 'recurrence', 'status', 'paid_by', 'paid_at',
-            'created_by', 'created_at'
+            'due_date', 'recurrence', 'status', 'split_type', 'paid_by', 'paid_by_id', 'paid_at',
+            'created_by', 'created_at', 'participant_ids', 'participant_percentages',
+            'participant_amounts', 'participants', 'splits'
         ]
-        read_only_fields = ['created_by', 'paid_by', 'paid_at']
+        read_only_fields = ['created_by', 'paid_at']
+
+    def get_participants(self, obj):
+        """Get list of participants in this bill"""
+        return [{'id': user.id, 'username': user.username} for user in obj.participants.all()]
+
+    def get_splits(self, obj):
+        """Get bill split details"""
+        splits = obj.splits.all()
+        return [{
+            'user_id': split.user.id,
+            'username': split.user.username,
+            'amount_owed': str(split.amount_owed),
+            'amount_paid': str(split.amount_paid),
+            'is_settled': split.is_settled
+        } for split in splits]
+
+    def create(self, validated_data):
+        participant_ids = validated_data.pop('participant_ids', [])
+        participant_percentages = validated_data.pop('participant_percentages', {})
+        participant_amounts = validated_data.pop('participant_amounts', {})
+        bill = super().create(validated_data)
+
+        # If participants are specified, create bill splits
+        if participant_ids:
+            from decimal import Decimal
+
+            # Calculate split amount based on split_type
+            if bill.split_type == 'equal':
+                split_amount = Decimal(bill.amount) / len(participant_ids)
+                for user_id in participant_ids:
+                    BillSplit.objects.create(
+                        bill=bill,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+            elif bill.split_type == 'percentage' and participant_percentages:
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    percentage = Decimal(participant_percentages.get(user_id_str, 0))
+                    amount_owed = (Decimal(bill.amount) * percentage) / Decimal(100)
+                    BillSplit.objects.create(
+                        bill=bill,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            elif bill.split_type == 'custom' and participant_amounts:
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    amount_owed = Decimal(participant_amounts.get(user_id_str, 0))
+                    BillSplit.objects.create(
+                        bill=bill,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            else:
+                # Default to equal split
+                split_amount = Decimal(bill.amount) / len(participant_ids)
+                for user_id in participant_ids:
+                    BillSplit.objects.create(
+                        bill=bill,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+
+        return bill
+
+    def update(self, instance, validated_data):
+        participant_ids = validated_data.pop('participant_ids', [])
+        participant_percentages = validated_data.pop('participant_percentages', {})
+        participant_amounts = validated_data.pop('participant_amounts', {})
+
+        # Update the bill
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Delete existing splits
+        instance.splits.all().delete()
+
+        # Create new splits if participants are specified
+        if participant_ids:
+            from decimal import Decimal
+
+            # Calculate split amount based on split_type
+            if instance.split_type == 'equal':
+                split_amount = Decimal(instance.amount) / len(participant_ids)
+                for user_id in participant_ids:
+                    BillSplit.objects.create(
+                        bill=instance,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+            elif instance.split_type == 'percentage' and participant_percentages:
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    percentage = Decimal(participant_percentages.get(user_id_str, 0))
+                    amount_owed = (Decimal(instance.amount) * percentage) / Decimal(100)
+                    BillSplit.objects.create(
+                        bill=instance,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            elif instance.split_type == 'custom' and participant_amounts:
+                for user_id in participant_ids:
+                    user_id_str = str(user_id)
+                    amount_owed = Decimal(participant_amounts.get(user_id_str, 0))
+                    BillSplit.objects.create(
+                        bill=instance,
+                        user_id=user_id,
+                        amount_owed=amount_owed
+                    )
+            else:
+                # Default to equal split
+                split_amount = Decimal(instance.amount) / len(participant_ids)
+                for user_id in participant_ids:
+                    BillSplit.objects.create(
+                        bill=instance,
+                        user_id=user_id,
+                        amount_owed=split_amount
+                    )
+
+        return instance
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:

@@ -196,6 +196,7 @@ export default function SharedDashboardPage() {
               livingSpaceId={livingSpaceId!}
               otherUser={matchInfo?.other_user || null}
               onUpdate={loadDashboard}
+              members={members}
             />
 
             <CalendarSection

@@ -495,6 +495,12 @@ class Bill(models.Model):
         ('yearly', 'Yearly'),
     ]
 
+    SPLIT_TYPES = [
+        ('equal', 'Equal Split'),
+        ('percentage', 'Percentage Split'),
+        ('custom', 'Custom Split'),
+    ]
+
     living_space = models.ForeignKey(LivingSpace, on_delete=models.CASCADE, related_name='bills')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -503,7 +509,9 @@ class Bill(models.Model):
     due_date = models.DateField()
     recurrence = models.CharField(max_length=20, choices=RECURRENCE_TYPES, default='none')
     status = models.CharField(max_length=20, choices=BILL_STATUS, default='pending')
+    split_type = models.CharField(max_length=20, choices=SPLIT_TYPES, default='equal')
 
+    participants = models.ManyToManyField(User, through='BillSplit', related_name='shared_bills')
     paid_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='paid_bills')
     paid_at = models.DateTimeField(null=True, blank=True)
 
@@ -520,6 +528,21 @@ class Bill(models.Model):
             models.Index(fields=['living_space', 'status']),
             models.Index(fields=['due_date']),
         ]
+
+class BillSplit(models.Model):
+    """Through model for Bill participants with split amounts"""
+    bill = models.ForeignKey(Bill, on_delete=models.CASCADE, related_name='splits')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount_owed = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    is_settled = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} owes ${self.amount_owed} for {self.bill.title}"
+
+    class Meta:
+        unique_together = ['bill', 'user']
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [

@@ -17,6 +17,7 @@ urlpatterns = [
     path('tasks/<int:pk>/', views.TaskDetailView.as_view(), name='task_detail'),
     path('expenses/', views.ExpenseListCreateView.as_view(), name='expenses'),
     path('expenses/<int:pk>/', views.ExpenseDetailView.as_view(), name='expense_detail'),
+    path('expenses/<int:expense_id>/settle/<int:user_id>/', views.settle_expense_split, name='settle_expense_split'),
 
     # Shared Dashboard
     path('shared-dashboard/<int:living_space_id>/', views.get_shared_dashboard, name='shared_dashboard'),
@@ -28,6 +29,8 @@ urlpatterns = [
 
     # Bills
     path('<int:living_space_id>/bills/create/', views.create_bill, name='create_bill'),
+    path('bills/<int:bill_id>/', views.BillDetailView.as_view(), name='bill_detail'),
+    path('bills/<int:bill_id>/settle/<int:user_id>/', views.settle_bill_split, name='settle_bill_split'),
     path('bills/<int:bill_id>/mark-paid/', views.mark_bill_paid, name='mark_bill_paid'),
 
     # Calendar Events
